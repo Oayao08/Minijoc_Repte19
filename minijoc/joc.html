@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minijoc Patinet - Atenció i Seguretat</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="assets/ui/favicon.png" type="image/png">
+
+    <!-- Metadatos para SEO y accesibilidad -->
+    <meta name="description" content="Minijoc interactiu sobre conducció segura amb patinet. Practica atenció i evita distraccions.">
+</head>
+<body>
+    <header class="game-header">
+        <h1>Ves amb compte!</h1>
+        <p>Mantén la teva atenció mentre condueixes!</p>
+    </header>
+
+    <!-- Contenedor principal del juego -->
+    <main id="game-container">
+        <canvas id="game-canvas" width="800" height="600">
+        </canvas>
+
+        <!-- Interfaz de usuario -->
+        <div id="game-ui">
+            <div id="score-container">
+                <span>Puntuació: </span><span id="score">0</span>
+            </div>
+            <div id="alert-container" class="hidden">
+                <p id="alert-text"></p>
+            </div>
+            <button id="start-btn">Iniciar joc</button>
+        </div>
+    </main>
+
+    <!-- Panel de controles opcional -->
+    <aside id="game-controls">
+        <h2>Controls</h2>
+        <ul>
+            <li>Fletxes esquerra/dreta: moure el patinet</li>
+            <li>Espai: frenar</li>
+            <li>Click sobre notificació: evitar distracció</li>
+        </ul>
+    </aside>
+
+    <!-- Scripts -->
+    <script src="script.js" type="module"></script>
+</body>
+</html>
