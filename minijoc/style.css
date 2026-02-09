@@ -32,7 +32,7 @@ body {
     opacity: 0.9;
 }
 
-/*Container joc*/
+/*Container del joc*/
 
 #game-container {
     position: relative;
@@ -52,7 +52,7 @@ body {
     border: 4px solid #000;
 }
 
-/*UI/Inter¡facç*/
+/*UI/Interfaç*/
 
 #game-ui {
     position: absolute;
@@ -64,8 +64,6 @@ body {
     align-items: center;
     pointer-events: none;
 }
-
-/*Puntuació*/
 
 /* Puntuació */
 
@@ -80,7 +78,7 @@ body {
     text-shadow: 1px 1px 0 #000;
 }
 
-/* ALERTES / DISTRACTIONS */
+/* Distraccions i alertes*/
 #alert-container {
     position: absolute;
     bottom: 60px;
@@ -103,7 +101,7 @@ body {
     display: none;
 }
 
-/* Animació de pulsació per a les alertes */
+/*Animació de pulsació per a les alertes*/
 
 #start-btn {
     pointer-events: auto;
@@ -132,7 +130,7 @@ body {
     box-shadow: inset 0 0 0 #007a3d, 0 0 0 #000;
 }
 
-/* Panel de  controls */
+/* Panel de  controls*/
 #game-controls {
     margin-top: 16px;
     background: #111;
