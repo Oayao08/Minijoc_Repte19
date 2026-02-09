@@ -31,3 +31,13 @@ body {
     font-size: 0.7rem;
     opacity: 0.9;
 }
+
+/*Container joc*/
+
+#game-container {
+    position: relative;
+    background: #2c2c2c;
+    padding: 12px;
+    border-radius: 14px;
+    box-shadow: 0 0 0 4px #000, 0 10px 25px rgba(0, 0, 0, 0.6);
+}
