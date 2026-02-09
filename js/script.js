@@ -49,5 +49,43 @@ function startGame() {
     speed = 4;
     obstacles = [];
     distractions = [];
-    
+    scoreEl.textContent = score;
+    startBtn.style.display = "none";
+    loop();
+}
+
+/*Bucle del joc */
+
+function loop() {
+  animationId = requestAnimationFrame(loop);
+  update();
+  draw();
+}
+
+/*Actualitzar l'estat del joc */
+function update() {
+  if (!gameRunning) return;
+
+  // Controls
+  if (keys["ArrowLeft"]) player.x -= player.speed;
+  if (keys["ArrowRight"]) player.x += player.speed;
+  if (keys[" "]) speed = 1.5;
+
+   else speed = 3 + score * 0.01;
+
+  // Límites
+  player.x = Math.max(40, Math.min(canvas.width - 80, player.x));
+
+  // Obstacles
+  obstacles.forEach(o => o.y += speed);
+  obstacles = obstacles.filter(o => o.y < canvas.height + 60);
+
+  // Distraccions
+  distractions.forEach(d => d.y += speed * 0.7);
+  distractions = distractions.filter(d => d.y < canvas.height + 60);
+
+  // Spawn
+  if (Math.random() < 0.02) spawnObstacle();
+  if (Math.random() < 0.005) spawnDistraction();
+
 }
