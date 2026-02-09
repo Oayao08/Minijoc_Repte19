@@ -132,4 +132,30 @@ body {
     box-shadow: inset 0 0 0 #007a3d, 0 0 0 #000;
 }
 
-/*/
+/* Panel de  controls */
+#game-controls {
+    margin-top: 16px;
+    background: #111;
+    border: 4px solid #000;
+    border-radius: 12px;
+    padding: 14px 18px;
+    width: 320px;
+    box-shadow: 0 0 0 3px #444;
+}
+
+#game-controls h2 {
+    font-size: 0.7rem;
+    margin-bottom: 10px;
+    color: #00ff88;
+    text-shadow: 1px 1px 0 #000;
+}
+
+#game-controls ul {
+    list-style: none;
+}
+
+#game-controls li {
+    font-size: 0.55rem;
+    margin-bottom: 6px;
+    color: #ddd;
+}
