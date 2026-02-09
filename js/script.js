@@ -25,3 +25,29 @@ const player = {
     height: 60,
     speed: 5,
 };
+
+console.log("Script carregat correctament");
+
+/*Controls */
+window.addEventListener("keydown", (e) => {
+    keys[e.key] = true;
+});
+
+window.addEventListener("keyup", (e) => {
+    keys[e.key] = false;
+});
+
+/*Botó START */
+
+startBtn.addEventListener("click", startGame);
+
+/*Iniciar */
+
+function startGame() {
+    gameRunning = true;
+    score = 0;
+    speed = 4;
+    obstacles = [];
+    distractions = [];
+    
+}
