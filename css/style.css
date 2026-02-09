@@ -1,7 +1,7 @@
-/* ===== FONTS I COLORS BASE ===== */
+/*Estils generals*/
 :root {
-    --color-principal: #004080;        /* Blau fosc RACC */
-    --color-secundari: #ffd700;       /* Groc */
+    --color-principal: #004080;  
+    --color-secundari: #ffd700;      
     --color-text: #222;
     --color-fons: #f8f8f8;
     --color-blanc: #ffffff;
@@ -9,7 +9,6 @@
     --font-main: 'Hind', sans-serif;
 }
 
-/* ===== RESET BÀSIC ===== */
 * {
     margin: 0;
     padding: 0;
@@ -23,13 +22,13 @@ body {
     line-height: 1.6;
 }
 
-/* ===== ENLLAÇOS ===== */
+/*Estil enllaços*/
 a {
     text-decoration: none;
     color: inherit;
 }
 
-/* ===== NAVBAR ===== */
+/*Navbar navegació */
 header {
     background-color: var(--color-principal);
     padding: 1rem 2rem;
@@ -66,9 +65,8 @@ h1.title {
     margin-top: 0.5rem;
 }
 
-/* ===== HERO ===== */
+/*Hero*/
 .hero {
-    background: var(--color-principal) url('../images/hero-bg.jpg') center/cover no-repeat;
     color: var(--color-blanc);
     padding: 4rem 1.5rem;
     text-align: center;
@@ -100,7 +98,7 @@ h1.title {
     line-height: 1.5;
 }
 
-/* ===== BOTÓ PRINCIPAL ===== */
+/*Botó principal*/
 .btn {
     background-color: var(--color-secundari);
     color: var(--color-principal);
@@ -119,7 +117,7 @@ h1.title {
     transform: translateY(-2px);
 }
 
-/* ===== FOOTER ===== */
+/* Footer + logos */
 footer {
     background-color: var(--color-principal);
     color: var(--color-blanc);
