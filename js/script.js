@@ -88,4 +88,53 @@ function update() {
   if (Math.random() < 0.02) spawnObstacle();
   if (Math.random() < 0.005) spawnDistraction();
 
+  // Col·lisions
+  obstacles.forEach(o => {
+    if (rectCollision(player, o)) endGame();
+  });
+
+  // Puntuació
+  score++;
+  scoreEl.textContent = score;
+}
+
+/*Dibuixar el jocc */
+
+function draw() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  drawRoad();
+  drawPlayer();
+  obstacles.forEach(drawObstacle);
+  distractions.forEach(drawDistraction);
+}
+
+/*Carretera */
+
+function drawRoad() {
+  ctx.fillStyle = "#555";
+  ctx.fillRect(100, 0, canvas.width - 200, canvas.height);
+
+  ctx.strokeStyle = "#fff";
+  ctx.setLineDash([20, 20]);
+  ctx.lineWidth = 4;
+  ctx.beginPath();
+  ctx.moveTo(canvas.width / 2, 0);
+  ctx.lineTo(canvas.width / 2, canvas.height);
+  ctx.stroke();
+  ctx.setLineDash([]);
+}
+
+/* Patinet*/
+function drawPlayer() {
+  ctx.fillStyle = "#00e676";
+  ctx.fillRect(player.x, player.y, player.width, player.height);
+
+  // manillar
+  ctx.fillStyle = "#111";
+  ctx.fillRect(player.x - 10, player.y + 10, player.width + 20, 6);
+
+  // rodes
+  ctx.fillStyle = "#000";
+  ctx.fillRect(player.x + 5, player.y + player.height - 8, 10, 8);
+  ctx.fillRect(player.x + player.width - 15, player.y + player.height - 8, 10, 8);
 }
