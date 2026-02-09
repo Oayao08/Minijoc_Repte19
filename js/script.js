@@ -138,3 +138,98 @@ function drawPlayer() {
   ctx.fillRect(player.x + 5, player.y + player.height - 8, 10, 8);
   ctx.fillRect(player.x + player.width - 15, player.y + player.height - 8, 10, 8);
 }
+
+/*Obstacles*/
+function drawObstacle(o) {
+  ctx.fillStyle = "#ff5252";
+  ctx.fillRect(o.x, o.y, o.width, o.height);
+
+  // cap
+  ctx.fillStyle = "#ffd180";
+  ctx.fillRect(o.x + 6, o.y - 10, o.width - 12, 10);
+}
+
+/* Mòbil distraccions*/
+function drawDistraction(d) {
+  ctx.fillStyle = "#00e5ff";
+  ctx.fillRect(d.x, d.y, d.width, d.height);
+
+  ctx.fillStyle = "#fff";
+  ctx.fillRect(d.x + 4, d.y + 4, d.width - 8, d.height - 12);
+}
+
+/*Spawner-*/
+function spawnObstacle() {
+  const x = 140 + Math.random() * (canvas.width - 280);
+  obstacles.push({
+    x,
+    y: -60,
+    width: 36,
+    height: 50
+  });
+}
+
+function spawnDistraction() {
+  const x = 140 + Math.random() * (canvas.width - 280);
+  distractions.push({
+    x,
+    y: -40,
+    width: 30,
+    height: 40,
+    active: true
+  });
+}
+
+/* Click distraccions interacció*/
+canvas.addEventListener("click", (e) => {
+  if (!gameRunning) return;
+
+  const rect = canvas.getBoundingClientRect();
+  const mx = e.clientX - rect.left;
+  const my = e.clientY - rect.top;
+
+  distractions.forEach((d, i) => {
+    if (
+      mx > d.x &&
+      mx < d.x + d.width &&
+      my > d.y &&
+      my < d.y + d.height
+    ) {
+      distractions.splice(i, 1);
+      score += 50;
+      scoreEl.textContent = score;
+      showAlert("📵 Distracció evitada!");
+    }
+  });
+});
+
+/* Alertes*/
+function showAlert(text) {
+  alertText.textContent = text;
+  alertContainer.classList.remove("hidden");
+  setTimeout(() => {
+    alertContainer.classList.add("hidden");
+  }, 900);
+}
+
+/*Perdre*/
+function endGame() {
+  gameRunning = false;
+  cancelAnimationFrame(animationId);
+  showAlert("💥 Has xocat!");
+  startBtn.textContent = "Reiniciar";
+  startBtn.style.display = "block";
+}
+
+/*Col·lisions*/
+function rectCollision(a, b) {
+  return (
+    a.x < b.x + b.width &&
+    a.x + a.width > b.x &&
+    a.y < b.y + b.height &&
+    a.y + a.height > b.y
+  );
+}
+
+/* Preload*/
+startBtn.disabled = false;
