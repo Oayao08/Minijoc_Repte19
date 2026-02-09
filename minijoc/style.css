@@ -13,3 +13,21 @@ body {
     flex-direction: column;
     align-items: center;
 }
+
+/*header*/
+
+.game-header {
+    text-align: center;
+    margin: 20px 0;
+    text-shadow: 2px 2px 0 #000;
+}
+
+.game-header h1 {
+    font-size: 1.6rem;
+    margin-bottom: 8px;
+}
+
+.game-header p {
+    font-size: 0.7rem;
+    opacity: 0.9;
+}
