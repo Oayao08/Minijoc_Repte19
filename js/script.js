@@ -20,5 +20,8 @@ let animationId;
 
 const player = {
     x: canvas.width / 2 - 20,
-    
-}
+    y: canvas.height - 90,
+    width: 40,
+    height: 60,
+    speed: 5,
+};
