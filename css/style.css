@@ -1,39 +1,145 @@
-body {
-    font-family: 'Hind', Helvetica, Arial, Lucida, sans-serif;
+/* ===== FONTS I COLORS BASE ===== */
+:root {
+    --color-principal: #004080;        /* Blau fosc RACC */
+    --color-secundari: #ffd700;       /* Groc */
+    --color-text: #222;
+    --color-fons: #f8f8f8;
+    --color-blanc: #ffffff;
+    --color-grey-light: #e2e2e2;
+    --font-main: 'Hind', sans-serif;
+}
+
+/* ===== RESET BÀSIC ===== */
+* {
     margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: var(--font-main);
+    background-color: var(--color-fons);
+    color: var(--color-text);
+    line-height: 1.6;
+}
+
+/* ===== ENLLAÇOS ===== */
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
+/* ===== NAVBAR ===== */
+header {
+    background-color: var(--color-principal);
+    padding: 1rem 2rem;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }
 
 .navbar {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
-    justify-content: center;
-    background-color: #333;
-    padding: 10px 20px;
+    justify-content: space-between;
 }
 
-a {
-    color: black;
-    text-decoration: none;
-    
+.navbar .logo img {
+    height: 55px;
 }
 
-.logo {
-    width: 300px;
-    height: 100px;
+.navbar a {
+    margin: 0 1rem;
+    font-weight: 500;
+    color: var(--color-blanc);
+    transition: color 0.3s;
 }
 
-title {
-
+.navbar a:hover {
+    color: var(--color-secundari);
 }
 
+h1.title {
+    flex: 1 1 100%;
+    text-align: center;
+    font-size: 2rem;
+    color: var(--color-blanc);
+    margin-top: 0.5rem;
+}
+
+/* ===== HERO ===== */
 .hero {
+    background: var(--color-principal) url('../images/hero-bg.jpg') center/cover no-repeat;
+    color: var(--color-blanc);
+    padding: 4rem 1.5rem;
+    text-align: center;
+    position: relative;
+}
 
+.hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
+}
+
+.hero section {
+    position: relative;
+    z-index: 1;
+    max-width: 700px;
+    margin: 0 auto;
 }
 
 .hero h2 {
-
+    font-size: 2.2rem;
+    margin-bottom: 1rem;
 }
 
-footer {
+.hero p {
+    font-size: 1.1rem;
+    margin-bottom: 2rem;
+    line-height: 1.5;
+}
 
+/* ===== BOTÓ PRINCIPAL ===== */
+.btn {
+    background-color: var(--color-secundari);
+    color: var(--color-principal);
+    padding: 0.9rem 2.2rem;
+    font-size: 1rem;
+    font-weight: 600;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.3s, transform 0.2s;
+    display: inline-block;
+}
+
+.btn:hover {
+    background-color: var(--color-blanc);
+    transform: translateY(-2px);
+}
+
+/* ===== FOOTER ===== */
+footer {
+    background-color: var(--color-principal);
+    color: var(--color-blanc);
+    text-align: center;
+    padding: 2rem 1rem;
+    font-size: 0.9rem;
+}
+
+footer p {
+    margin-bottom: 1rem;
+}
+
+footer .logos {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+footer .logos img {
+    height: 45px;
+    filter: brightness(1.1);
 }
