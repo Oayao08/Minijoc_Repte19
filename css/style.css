@@ -1,0 +1,33 @@
+body {
+    font-family: 'Hind', Helvetica, sans-serif;
+    background: #fff;
+    color: #333;
+    margin: 0 2rem;
+}
+
+h1 {
+    color: #333;
+    text-align: center;
+}
+
+li {
+    list-style: none;
+}
+
+a {
+    text-decoration: none;
+    color: #333333;
+    background: #f4f4f4;
+    border-radius: 30px;
+}
+
+.navbar {
+    background: #fff;
+    align-items: center;
+}
+
+
+.logo img {
+    height: 80px;
+    width: 330px;
+}
