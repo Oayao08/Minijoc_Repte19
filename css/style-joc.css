@@ -1,159 +1,161 @@
-    * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-    }
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
 
-    body {
-        font-family: 'Hind', Helvetica, Arial, Lucida, sans-serif;
-        background: linear-gradient(#6ec6ff, #b3e5fc);
-        color: #fff;
-        min-height: 100vh;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-    }
+body {
+    font-family: 'Hind', Helvetica, Arial, Lucida, sans-serif;
+    background: linear-gradient(#6ec6ff, #b3e5fc);
+    color: #fff;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
 
-    /*header*/
+/*header*/
 
-    .game-header {
-        text-align: center;
-        margin: 20px 0;
-        text-shadow: 2px 2px 0 #000;
-    }
+.game-header {
+    text-align: center;
+    margin: 20px 0;
+    text-shadow: 2px 2px 0 #000;
+}
 
-    .game-header h1 {
-        font-size: 1.6rem;
-        margin-bottom: 8px;
-    }
+.game-header h1 {
+    font-size: 1.6rem;
+    margin-bottom: 8px;
+}
 
-    .game-header p {
-        font-size: 0.7rem;
-        opacity: 0.9;
-    }
+.game-header p {
+    font-size: 0.7rem;
+    opacity: 0.9;
+}
 
-    /*Container del joc*/
+/*Container del joc*/
 
-    #game-container {
-        position: relative;
-        background: #2c2c2c;
-        padding: 12px;
-        border-radius: 14px;
-        box-shadow: 0 0 0 4px #000, 0 10px 25px rgba(0, 0, 0, 0.6);
-    }
+#game-container {
+    position: relative;
+    background: #2c2c2c;
+    padding: 12px;
+    border-radius: 14px;
+    box-shadow: 0 0 0 4px #000, 0 10px 25px rgba(0, 0, 0, 0.6);
+}
 
-    /*Canvas*/
+/*Canvas*/
 
-    #game-canvas {
-        background: linear-gradient(#8fd3ff, #c8ecff);
-        border-radius: 10px;
-        image-rendering: pixelated;
-        image-rendering: crisp-edges;
-        border: 4px solid #000;
-    }
+#game-canvas {
+    background: linear-gradient(#8fd3ff, #c8ecff);
+    border-radius: 10px;
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+    border: 4px solid #000;
+}
 
-    /*UI/Interfaç*/
+/*UI/Interfaç*/
 
-    #game-ui {
-        position: absolute;
-        top: 10px;
-        left: 10px;
-        right: 10px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        pointer-events: none;
-    }
+#game-ui {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    right: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    pointer-events: none;
+}
 
-    /* Puntuació */
+/*Puntuació*/
 
-    #score-container {
-        background: #111;
-        padding: 8px 12px;
-        border-radius: 8px;
-        border: 3px solid #00ff88;
-        box-shadow: inset 0 0 0 2px #000;
-        font-size: 0.65rem;
-        color: #00ff88;
-        text-shadow: 1px 1px 0 #000;
-    }
+#score-container {
+    background: #111;
+    padding: 8px 12px;
+    border-radius: 8px;
+    border: 3px solid #00ff88;
+    box-shadow: inset 0 0 0 2px #000;
+    font-size: 0.65rem;
+    color: #00ff88;
+    text-shadow: 1px 1px 0 #000;
+}
 
-    /* Distraccions i alertes*/
-    #alert-container {
-        position: absolute;
-        bottom: 60px;
-        left: 50%;
-        transform: translateX(-50%);
-        background: #ff1744;
-        color: #fff;
-        padding: 10px 16px;
-        border-radius: 10px;
-        border: 3px solid #000;
-        font-size: 0.6rem;
-        text-shadow: 1px 1px 0 #000;
-        box-shadow: 0 0 0 3px #fff, 0 10px 20px rgba(0,0,0,0.4);
-        animation: pulse 0.8s infinite alternate;
-        pointer-events: auto;
-        cursor: pointer;
-    }
+/*Distraccions i alertes*/
+#alert-container {
+    position: absolute;
+    bottom: 60px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #ff1744;
+    color: #fff;
+    padding: 10px 16px;
+    border-radius: 10px;
+    border: 3px solid #000;
+    font-size: 0.6rem;
+    text-shadow: 1px 1px 0 #000;
+    box-shadow: 0 0 0 3px #fff, 0 10px 20px rgba(0,0,0,0.4);
+    animation: pulse 0.8s infinite alternate;
+    pointer-events: auto;
+    cursor: pointer;
+}
 
-    .hidden {
-        display: none;
-    }
+.hidden {
+    display: none;
+}
 
-    /*Animació de pulsació per a les alertes*/
+/*Animació de pulsació per a les alertes*/
 
-    #start-btn {
-        pointer-events: auto;
-        position: absolute;
-        bottom: 12px;
-        right: 12px;
-        background: linear-gradient(#00e676, #00c853);
-        color: #003300;
-        border: 4px solid #000;
-        border-radius: 10px;
-        padding: 10px 14px;
-        font-family: inherit;
-        font-size: 0.6rem;
-        cursor: pointer;
-        box-shadow: inset 0 -4px 0 #007a3d, 0 4px 0 #000;
-        transition: transform 0.1s ease, box-shadow 0.1s ease;
-    }
+#start-btn {
+    pointer-events: auto;
+    position: absolute;
+    bottom: 12px;
+    right: 12px;
+    background: linear-gradient(#00e676, #00c853);
+    color: #003300;
+    border: 4px solid #000;
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-family: inherit;
+    font-size: 0.6rem;
+    cursor: pointer;
+    box-shadow: inset 0 -4px 0 #007a3d, 0 4px 0 #000;
+    transition: transform 0.1s ease, box-shadow 0.1s ease;
+}
 
-    #start-btn:hover {
-        transform: translateY(1px);
-        box-shadow: inset 0 -2px 0 #007a3d, 0 2px 0 #000;
-    }
+#start-btn:hover {
+    transform: translateY(1px);
+    box-shadow: inset 0 -2px 0 #007a3d, 0 2px 0 #000;
+}
 
-    #start-btn:active {
-        transform: translateY(3px);
-        box-shadow: inset 0 0 0 #007a3d, 0 0 0 #000;
-    }
+#start-btn:active {
+    transform: translateY(3px);
+    box-shadow: inset 0 0 0 #007a3d, 0 0 0 #000;
+}
 
-    /* Panel de  controls*/
-    #game-controls {
-        margin-top: 16px;
-        background: #111;
-        border: 4px solid #000;
-        border-radius: 12px;
-        padding: 14px 18px;
-        width: 320px;
-        box-shadow: 0 0 0 3px #444;
-    }
+/* Panel de  controls*/
 
-    #game-controls h2 {
-        font-size: 0.7rem;
-        margin-bottom: 10px;
-        color: #00ff88;
-        text-shadow: 1px 1px 0 #000;
-    }
 
-    #game-controls ul {
-        list-style: none;
-    }
+#game-controls {
+    margin-top: 16px;
+    background: #111;
+    border: 4px solid #000;
+    border-radius: 12px;
+    padding: 14px 18px;
+    width: 320px;
+    box-shadow: 0 0 0 3px #444;
+}
 
-    #game-controls li {
-        font-size: 0.55rem;
-        margin-bottom: 6px;
-        color: #ddd;
-    }
+#game-controls h2 {
+    font-size: 0.7rem;
+    margin-bottom: 10px;
+    color: #00ff88;
+    text-shadow: 1px 1px 0 #000;
+}
+
+#game-controls ul {
+    list-style: none;
+}
+
+#game-controls li {
+    font-size: 0.55rem;
+    margin-bottom: 6px;
+    color: #ddd;
+}
