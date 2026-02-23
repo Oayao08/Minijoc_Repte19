@@ -3,44 +3,66 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Minijoc Patinet - Atenció i Seguretat</title>
+    <title>Ves amb compte! | Minijoc de seguretat en patinet</title>
+
+    <meta name="description" content="Minijoc interactiu sobre conducció segura amb patinet. Practica l'atenció i evita distraccions.">
+    <meta name="theme-color" content="#000000">
+
     <link rel="stylesheet" href="../css/style-joc.css">
     <link rel="icon" href="assets/ui/favicon.png" type="image/png">
-    <meta name="description" content="Minijoc interactiu sobre conducció segura amb patinet. Practica atenció i evita distraccions.">
 </head>
+
 <body>
+
     <header class="game-header">
         <h1>Ves amb compte!</h1>
-        <p>Mantén la teva atenció mentre condueixes!</p>
+        <p>Minijoc sobre atenció i seguretat en patinet</p>
     </header>
 
-    <!-- Contenidor principal del joc -->
-    <main id="game-container">
-        <canvas id="game-canvas" width="800" height="600" aria-label="Minijoc Ves amb compte!">
+    <main id="game-container" role="main">
+
+        <!-- Canvas del joc -->
+        <canvas 
+            id="game-canvas" 
+            width="800" 
+            height="600"
+            role="img"
+            aria-label="Simulació de conducció en patinet amb distraccions">
+            
+            El teu navegador no suporta canvas. Actualitza'l per jugar.
         </canvas>
-        <!-- Interfaz de usuario -->
-        <div id="game-ui">
+
+        <!-- Interfície del joc -->
+        <section id="game-ui" aria-live="polite">
+
             <div id="score-container">
-                <span>Puntuació: </span><span id="score">0</span>
+                <span>Puntuació:</span>
+                <span id="score">0</span>
             </div>
-            <div id="alert-container" class="hidden">
+
+            <div id="alert-container" class="hidden" role="alert">
                 <p id="alert-text"></p>
             </div>
-            <button id="start-btn">Iniciar joc</button>
-        </div>
+
+            <div class="game-buttons">
+                <button id="start-btn" type="button">Iniciar joc</button>
+                <button id="restart-btn" type="button" class="hidden">Reiniciar</button>
+            </div>
+
+        </section>
+
     </main>
 
-    <!-- Panel de controls -->
-    <aside id="game-controls">
+    <aside id="game-controls" aria-label="Controls del joc">
         <h2>Controls</h2>
         <ul>
-            <li>Fletxes esquerra/dreta: moure el patinet</li>
-            <li>Espai: frenar</li>
-            <li>Click sobre notificació: evitar distracció</li>
+            <li>← → : Moure el patinet</li>
+            <li>Espai : Frenar</li>
+            <li>Click notificació : Ignorar distracció</li>
         </ul>
     </aside>
 
-    <!-- JavaScript -->
-    <script src="../js/game.js" type="module"></script>
+    <script src="../js/game.js" defer></script>
+
 </body>
 </html>
