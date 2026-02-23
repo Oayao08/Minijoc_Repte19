@@ -1,365 +1,508 @@
-const ASSETS = {
-  player: 'player.png', // posa la teva imatge del patinet (o deixa en blanc: es dibuixa un rectangle)
-  peatons: ['personatge1.png','personatge2.png','personatge3.png','personatge4.png','personatge5.png'],
-  obstacles: ['costat1.png','costat2.png','costat3.png','costat4.png','costat5.png'],
-  distractions: ['smartphone.png','auriculars.png','semafor.png','bici.png','gos.png'],
-  powerups: ['casco.png','chaleco.png']
+const canvas = document.getElementById('game-canvas');
+const ctx = canvas.getContext('2d');
+
+const ui = {
+  score: document.getElementById('score'),
+  lives: document.getElementById('lives'),
+  speed: document.getElementById('speed-indicator'),
+  seenMobile: document.getElementById('seen-mobile'),
+  seenHeadphones: document.getElementById('seen-headphones'),
+  seenPedestrian: document.getElementById('seen-pedestrian'),
+  overlay: document.getElementById('overlay'),
+  popupCard: document.getElementById('popup-card'),
+  popupIcon: document.getElementById('popup-icon'),
+  popupTitle: document.getElementById('popup-title'),
+  popupBody: document.getElementById('popup-body'),
+  popupButton: document.getElementById('popup-button'),
+  endScreen: document.getElementById('end-screen'),
+  endTitle: document.getElementById('end-title'),
+  endBody: document.getElementById('end-body'),
+  restartBtn: document.getElementById('restart-btn'),
+  shell: document.getElementById('game-shell')
 };
 
-let state = null;
-/*UTILITATS*/
-function clamp(v,a,b){return Math.max(a, Math.min(b, v));}
-function rand(a,b){return a + Math.random()*(b-a);}
-function aabb(a,b){ // col·lisió simple AABB
-  return !(a.x+a.w < b.x || a.x > b.x + b.w || a.y + a.h < b.y || a.y > b.y + b.h);
+const assets = {
+  player: new Image(),
+  mobile: new Image(),
+  headphones: new Image(),
+  pedestrian: new Image()
+};
+assets.player.src = '../img/personatge_principal.png';
+assets.mobile.src = '../img/costat1.png';
+assets.headphones.src = '../img/costat2.png';
+assets.pedestrian.src = '../img/personatge1.png';
+
+const POPUPS = {
+  initial: {
+    key: 'initial',
+    icon: '../img/personatge_principal.png',
+    title: '¡CONTROLES RÁPIDOS!',
+    body: `Usa las flechas ← → para moverte.\nPulsa ESPACIO para parar y S para saltar.\nEvita chocar con peatones y no uses el móvil o los auriculares en vías concurridas.\nConsigue 100 puntos para ganar.`,
+    button: 'ENTENDIDO'
+  },
+  headphones: {
+    key: 'headphones',
+    icon: '../img/costat2.png',
+    title: '¡ATENTO A LOS SONIDOS!',
+    body: 'Escuchar música a alto volumen te aísla de tu entorno. Necesitas escuchar los vehículos, bocinas y peatones para moverte con seguridad.',
+    button: 'ENTENDIDO (-5 pts)'
+  },
+  mobile: {
+    key: 'mobile',
+    icon: '../img/costat1.png',
+    title: '¡ATENTO A LA PANTALLA!',
+    body: 'Mirar el móvil mientras caminas disminuye tu atención y aumenta el riesgo en la vía. Mantén la mirada en el entorno cuando estés en la calle.',
+    button: 'ENTENDIDO (-5 pts)'
+  },
+  pedestrian: {
+    key: 'pedestrian',
+    icon: '../img/personatge1.png',
+    title: '¡CUIDADO, PEATÓN!',
+    body: 'Si atropellas a un peatón puedes hacerle daño y perderás una vida. Estate atento y evita colisiones.',
+    button: 'ENTENDIDO (-1 vida)'
+  }
+};
+
+const state = {
+  started: false,
+  gameOver: false,
+  won: false,
+  pausedByUser: false,
+  pausedByPopup: true,
+  score: 0,
+  lives: 3,
+  gravity: 1900,
+  difficultyTime: 0,
+  cameraX: 0,
+  levelSpeed: 95,
+  targetScore: 100,
+  lastTime: 0,
+  seenPopup: {
+    mobile: false,
+    headphones: false,
+    pedestrian: false
+  },
+  keys: {
+    left: false,
+    right: false,
+    jumpPressed: false,
+    braking: false
+  },
+  player: {
+    x: 230,
+    y: 430,
+    w: 70,
+    h: 90,
+    vx: 0,
+    vy: 0,
+    onGround: true,
+    state: 'idle'
+  },
+  objects: [],
+  pedestrians: [],
+  floatTexts: [],
+  spawn: {
+    objectTimer: rand(1.4, 2.2),
+    pedestrianTimer: rand(2.6, 4.2),
+    lastObjectWorldX: 380
+  },
+  parallaxOffset: [0, 0, 0]
+};
+
+function rand(min, max) {
+  return min + Math.random() * (max - min);
 }
 
-/* PRELOAD IMATGES SEGUR */
-const images = {};
-function loadAssets(assetList, prefix){
-  assetList.forEach((src,i)=>{
-    const img = new Image();
-    img.src = src;
-    images[prefix+i] = null;
-    img.onload = ()=>{ images[prefix+i] = img; };
-    img.onerror = ()=>{ console.warn('No trobat:', src); images[prefix+i]=null; };
+function clamp(value, min, max) {
+  return Math.max(min, Math.min(max, value));
+}
+
+function gameplayPaused() {
+  return state.pausedByPopup || state.pausedByUser || state.gameOver;
+}
+
+function resetGame() {
+  state.started = true;
+  state.gameOver = false;
+  state.won = false;
+  state.pausedByUser = false;
+  state.pausedByPopup = true;
+  state.score = 0;
+  state.lives = 3;
+  state.difficultyTime = 0;
+  state.cameraX = 0;
+  state.levelSpeed = 95;
+  state.lastTime = 0;
+  state.keys.left = false;
+  state.keys.right = false;
+  state.keys.jumpPressed = false;
+  state.keys.braking = false;
+  state.player.x = 230;
+  state.player.y = 430;
+  state.player.vx = 0;
+  state.player.vy = 0;
+  state.player.onGround = true;
+  state.player.state = 'idle';
+  state.objects = [];
+  state.pedestrians = [];
+  state.floatTexts = [];
+  state.spawn.objectTimer = rand(1.2, 2.2);
+  state.spawn.pedestrianTimer = rand(2.6, 4.2);
+  state.spawn.lastObjectWorldX = 380;
+  state.parallaxOffset = [0, 0, 0];
+  state.seenPopup.mobile = false;
+  state.seenPopup.headphones = false;
+  state.seenPopup.pedestrian = false;
+  ui.endScreen.classList.add('hidden');
+  syncHud();
+  showPopup(POPUPS.initial);
+}
+
+function showPopup(config) {
+  state.pausedByPopup = true;
+  ui.popupCard.classList.remove('glow');
+  void ui.popupCard.offsetWidth;
+  ui.popupCard.classList.add('glow');
+  ui.popupIcon.src = config.icon;
+  ui.popupTitle.textContent = config.title;
+  ui.popupBody.textContent = config.body;
+  ui.popupButton.textContent = config.button;
+  ui.overlay.classList.remove('hidden');
+}
+
+function closePopup() {
+  ui.overlay.classList.add('hidden');
+  state.pausedByPopup = false;
+}
+
+function openEndScreen(win) {
+  state.gameOver = true;
+  state.won = win;
+  state.pausedByPopup = true;
+  state.pausedByUser = false;
+  ui.endTitle.textContent = win ? '¡VICTORIA!' : 'GAME OVER';
+  ui.endBody.textContent = win
+    ? `Has alcanzado ${Math.round(state.score)} puntos y completado el reto con seguridad.`
+    : `Te has quedado sin vidas con ${Math.round(state.score)} puntos. Vuelve a intentarlo.`;
+  ui.endScreen.classList.remove('hidden');
+}
+
+function syncHud() {
+  ui.score.textContent = Math.round(state.score);
+  ui.lives.textContent = state.lives;
+  ui.speed.textContent = `Velocidad: ${Math.round(Math.abs(state.player.vx))}`;
+  ui.seenMobile.textContent = state.seenPopup.mobile ? '📱✓' : '📱✖';
+  ui.seenHeadphones.textContent = state.seenPopup.headphones ? '🎧✓' : '🎧✖';
+  ui.seenPedestrian.textContent = state.seenPopup.pedestrian ? '🚶✓' : '🚶✖';
+}
+
+function addFloatingText(text, color) {
+  state.floatTexts.push({
+    x: state.player.x + state.player.w / 2,
+    y: state.player.y - 10,
+    text,
+    color,
+    life: 1.0
   });
 }
 
-// Player fallback
-images['player'] = null;
-const imgPlayer = new Image();
-imgPlayer.src = ASSETS.player;
-imgPlayer.onload = ()=>images['player']=imgPlayer;
-imgPlayer.onerror = ()=>{ console.warn('Player no trobat, es dibuixarà rectangle'); images['player']=null; }
+function spawnObject() {
+  const type = Math.random() < 0.5 ? 'mobile' : 'headphones';
+  const minGap = 230;
+  const spawnX = Math.max(state.cameraX + canvas.width + rand(80, 340), state.spawn.lastObjectWorldX + minGap);
+  const groundY = 490;
+  state.objects.push({
+    type,
+    worldX: spawnX,
+    y: groundY,
+    w: 46,
+    h: 46,
+    hit: false
+  });
+  state.spawn.lastObjectWorldX = spawnX;
 
-loadAssets(ASSETS.peatons,'peaton');
-loadAssets(ASSETS.obstacles,'obst');
-loadAssets(ASSETS.distractions,'dis');
-loadAssets(ASSETS.powerups,'pu');
+  const baseMin = Math.max(3.5, 6 - state.difficultyTime / 75);
+  const baseMax = Math.max(6.6, 10 - state.difficultyTime / 75);
+  state.spawn.objectTimer = rand(baseMin, baseMax);
+}
 
-/* Inicia el joc immediatament sense esperar*/
-game.start();
+function spawnPedestrian() {
+  const fromLeft = Math.random() < 0.5;
+  const y = 478;
+  const speed = rand(380, 500) + state.difficultyTime * 1.8;
+  state.pedestrians.push({
+    x: fromLeft ? -80 : canvas.width + 80,
+    y,
+    w: 54,
+    h: 80,
+    vx: fromLeft ? speed : -speed,
+    hit: false
+  });
 
-/* ENTITATS*/
-class GameObject {
-  constructor(x,y,w,h,image=null){
-    this.x=x; this.y=y; this.w=w; this.h=h; this.image=image;
-    this.vx=0; this.vy=0;
-    this.remove=false;
+  const min = Math.max(5.5, 8 - state.difficultyTime / 60);
+  const max = Math.max(11.5, 18 - state.difficultyTime / 50);
+  state.spawn.pedestrianTimer = rand(min, max);
+}
+
+function collides(a, b) {
+  return !(a.x + a.w < b.x || a.x > b.x + b.w || a.y + a.h < b.y || a.y > b.y + b.h);
+}
+
+function penalizeObject(type) {
+  state.score = Math.max(0, state.score - 5);
+  addFloatingText('-5 pts', '#ff6363');
+  if (!state.seenPopup[type]) {
+    state.seenPopup[type] = true;
+    showPopup(type === 'mobile' ? POPUPS.mobile : POPUPS.headphones);
   }
-  draw(){
-    if(this.image && images[this.image]){
-      ctx.drawImage(images[this.image], this.x, this.y, this.w, this.h);
+}
+
+function penalizePedestrian() {
+  state.lives -= 1;
+  addFloatingText('-1 vida', '#ff2747');
+  ui.shell.classList.add('screen-hit');
+  setTimeout(() => ui.shell.classList.remove('screen-hit'), 160);
+  if (!state.seenPopup.pedestrian) {
+    state.seenPopup.pedestrian = true;
+    showPopup(POPUPS.pedestrian);
+  }
+  if (state.lives <= 0) {
+    openEndScreen(false);
+  }
+}
+
+function updatePlayer(dt) {
+  const player = state.player;
+  const accel = 1300 + state.difficultyTime * 5;
+  const maxSpeed = 340 + state.difficultyTime * 2.6;
+  const friction = 1600;
+
+  if (state.keys.braking) {
+    player.vx = 0;
+    player.state = 'idle';
+  } else {
+    if (state.keys.left) player.vx -= accel * dt;
+    if (state.keys.right) player.vx += accel * dt;
+    if (!state.keys.left && !state.keys.right) {
+      const dir = Math.sign(player.vx);
+      const next = Math.abs(player.vx) - friction * dt;
+      player.vx = next <= 0 ? 0 : dir * next;
+    }
+    player.vx = clamp(player.vx, -maxSpeed, maxSpeed);
+  }
+
+  if (state.keys.jumpPressed && player.onGround) {
+    player.vy = -760;
+    player.onGround = false;
+  }
+  state.keys.jumpPressed = false;
+
+  player.vy += state.gravity * dt;
+  player.x += player.vx * dt;
+  player.y += player.vy * dt;
+
+  const floorY = 520 - player.h;
+  if (player.y >= floorY) {
+    player.y = floorY;
+    player.vy = 0;
+    player.onGround = true;
+  }
+
+  player.x = clamp(player.x, 40, canvas.width - player.w - 40);
+
+  if (!player.onGround) {
+    player.state = 'jump';
+  } else if (Math.abs(player.vx) < 1 || state.keys.braking) {
+    player.state = 'idle';
+  } else {
+    player.state = 'walk';
+  }
+}
+
+function updateWorld(dt) {
+  if (gameplayPaused()) return;
+
+  state.difficultyTime += dt;
+  state.levelSpeed = 95 + state.difficultyTime * 1.35;
+  state.cameraX += dt * (state.levelSpeed + Math.max(0, state.player.vx * 0.2));
+  state.parallaxOffset[0] += dt * state.levelSpeed * 0.2;
+  state.parallaxOffset[1] += dt * state.levelSpeed * 0.45;
+  state.parallaxOffset[2] += dt * state.levelSpeed * 0.85;
+
+  updatePlayer(dt);
+
+  state.spawn.objectTimer -= dt;
+  state.spawn.pedestrianTimer -= dt;
+  if (state.spawn.objectTimer <= 0) spawnObject();
+  if (state.spawn.pedestrianTimer <= 0) spawnPedestrian();
+
+  const playerBox = state.player;
+
+  for (const obj of state.objects) {
+    const screenX = obj.worldX - state.cameraX;
+    obj.x = screenX;
+    if (!obj.hit && collides(playerBox, obj)) {
+      obj.hit = true;
+      penalizeObject(obj.type);
+    }
+  }
+
+  for (const p of state.pedestrians) {
+    p.x += p.vx * dt;
+    if (!p.hit && collides(playerBox, p)) {
+      p.hit = true;
+      penalizePedestrian();
+    }
+  }
+
+  state.objects = state.objects.filter((o) => o.x > -80 && o.x < canvas.width + 120 && !o.hit);
+  state.pedestrians = state.pedestrians.filter((p) => p.x > -120 && p.x < canvas.width + 120 && !p.hit);
+
+  state.score = Math.min(110, state.score + dt * 2.65);
+  if (state.score >= state.targetScore) {
+    openEndScreen(true);
+  }
+
+  for (const t of state.floatTexts) {
+    t.y -= 48 * dt;
+    t.life -= dt;
+  }
+  state.floatTexts = state.floatTexts.filter((t) => t.life > 0);
+
+  syncHud();
+}
+
+function drawParallaxLayer(offset, color, waveHeight, baseY) {
+  ctx.fillStyle = color;
+  const width = canvas.width;
+  const shift = -(offset % width);
+  for (let i = -1; i <= 1; i += 1) {
+    const x = shift + i * width;
+    ctx.beginPath();
+    ctx.moveTo(x, baseY);
+    ctx.lineTo(x + width * 0.22, baseY - waveHeight);
+    ctx.lineTo(x + width * 0.46, baseY);
+    ctx.lineTo(x + width * 0.72, baseY - waveHeight * 0.42);
+    ctx.lineTo(x + width, baseY);
+    ctx.lineTo(x + width, canvas.height);
+    ctx.lineTo(x, canvas.height);
+    ctx.closePath();
+    ctx.fill();
+  }
+}
+
+function drawBackground() {
+  const grd = ctx.createLinearGradient(0, 0, 0, canvas.height);
+  grd.addColorStop(0, '#2a87af');
+  grd.addColorStop(1, '#2e6c8d');
+  ctx.fillStyle = grd;
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  drawParallaxLayer(state.parallaxOffset[0], 'rgba(207, 226, 240, 0.22)', 140, 420);
+  drawParallaxLayer(state.parallaxOffset[1], 'rgba(112, 178, 198, 0.28)', 120, 460);
+
+  ctx.fillStyle = '#2eaa76';
+  ctx.fillRect(0, 520, canvas.width, 12);
+
+  ctx.fillStyle = '#1f2a3b';
+  ctx.fillRect(0, 532, canvas.width, 88);
+
+  const roadOffset = -(state.parallaxOffset[2] % 112);
+  for (let x = -112; x < canvas.width + 112; x += 112) {
+    ctx.fillStyle = '#f2c94c';
+    ctx.fillRect(x + roadOffset, 565, 50, 8);
+  }
+}
+
+function drawPlayer() {
+  const p = state.player;
+  const bob = p.state === 'walk' ? Math.sin(performance.now() * 0.02) * 3 : 0;
+
+  if (assets.player.complete && assets.player.naturalWidth > 0) {
+    ctx.drawImage(assets.player, p.x, p.y + bob, p.w, p.h);
+  } else {
+    ctx.fillStyle = '#f5b41e';
+    ctx.fillRect(p.x + 10, p.y + 20 + bob, p.w - 20, p.h - 20);
+  }
+
+  if (p.state === 'jump') {
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.arc(p.x + p.w / 2, p.y - 6, 10, 0, Math.PI * 2);
+    ctx.stroke();
+  }
+}
+
+function drawObjects() {
+  for (const obj of state.objects) {
+    const img = obj.type === 'mobile' ? assets.mobile : assets.headphones;
+    if (img.complete && img.naturalWidth > 0) {
+      ctx.drawImage(img, obj.x, obj.y, obj.w, obj.h);
     } else {
-      // fallback visual (segons tipus)
-      ctx.fillStyle = '#666';
-      ctx.fillRect(this.x, this.y, this.w, this.h);
+      ctx.fillStyle = obj.type === 'mobile' ? '#ffd166' : '#7fd3ff';
+      ctx.fillRect(obj.x, obj.y, obj.w, obj.h);
     }
   }
-}
 
-/*Jugador controlat: patinet*/
-class Player extends GameObject{
-  constructor(){
-    super(100, H-140, 64, 64, 'player');
-    this.speed=260;
-    this.life=3;
-    this.score=0;
-    this.shield=0; // segons segons de protecció
-  }
-  update(dt, input){
-    let dx=0, dy=0;
-    if(input.left) dx -= 1;
-    if(input.right) dx += 1;
-    if(input.up) dy -= 1;
-    if(input.down) dy += 1;
-    const len = Math.hypot(dx,dy) || 1;
-    this.x += (dx/len) * this.speed * dt;
-    this.y += (dy/len) * this.speed * dt;
-    this.x = clamp(this.x, 0, W - this.w);
-    this.y = clamp(this.y, 0, H - this.h - 20);
-    if(this.shield>0) this.shield = Math.max(0, this.shield - dt);
-  }
-  draw(){
-    // si hi ha imatge del player la mostrem, si no, dibuix minimal
-    if(images['player']){
-      ctx.drawImage(images['player'], this.x, this.y, this.w, this.h);
+  for (const p of state.pedestrians) {
+    if (assets.pedestrian.complete && assets.pedestrian.naturalWidth > 0) {
+      ctx.drawImage(assets.pedestrian, p.x, p.y, p.w, p.h);
     } else {
-      ctx.fillStyle = '#ffcc00';
-      ctx.fillRect(this.x, this.y, this.w, this.h);
-      ctx.fillStyle = '#000'; ctx.fillText('PAT', this.x+8, this.y+36);
-    }
-    // indicador escut
-    if(this.shield>0){
-      ctx.strokeStyle = 'rgba(80,220,255,0.9)';
-      ctx.lineWidth = 3;
-      ctx.strokeRect(this.x-4, this.y-4, this.w+8, this.h+8);
+      ctx.fillStyle = '#ff7799';
+      ctx.fillRect(p.x, p.y, p.w, p.h);
     }
   }
 }
 
-/*Peató: apareix i creua un crosswalk */
-class Peaton extends GameObject{
-  constructor(x, y, dir, imageKey){
-    super(x,y,48,64,imageKey);
-    this.vx = dir * rand(40,80);
-    this.h = 56;
+function drawFloatingTexts() {
+  ctx.textAlign = 'center';
+  ctx.font = 'bold 24px Hind, sans-serif';
+  for (const t of state.floatTexts) {
+    ctx.globalAlpha = Math.max(0, t.life);
+    ctx.fillStyle = t.color;
+    ctx.fillText(t.text, t.x, t.y);
   }
-  update(dt){ this.x += this.vx * dt; if(this.x < -100 || this.x > W+100) this.remove=true; }
+  ctx.globalAlpha = 1;
+  ctx.textAlign = 'left';
 }
 
-/* Obstáculos: cotxes/patinetes/bicis (mòbils) */
-class Obstacle extends GameObject{
-  constructor(x,y,vx,imageKey){
-    super(x,y,72,48,imageKey);
-    this.vx = vx;
-    this.h = 48;
-  }
-  update(dt){ this.x += this.vx * dt; if(this.x < -200 || this.x > W+200) this.remove=true; }
+function frame(time) {
+  if (!state.lastTime) state.lastTime = time;
+  const dt = Math.min(0.033, (time - state.lastTime) / 1000);
+  state.lastTime = time;
+
+  updateWorld(dt);
+  drawBackground();
+  drawObjects();
+  drawPlayer();
+  drawFloatingTexts();
+
+  requestAnimationFrame(frame);
 }
 
-/* Distracció: icona educativa (pot ser estàtica o mòbil) */
-class Distraction extends GameObject{
-  constructor(x,y,imageKey, info){
-    super(x,y,44,44,imageKey);
-    this.info = info; // missatge educatiu
-    this.vx = 0;
+window.addEventListener('keydown', (event) => {
+  if (event.code === 'ArrowLeft') state.keys.left = true;
+  if (event.code === 'ArrowRight') state.keys.right = true;
+  if (event.code === 'Space') {
+    event.preventDefault();
+    state.keys.braking = true;
   }
-  update(dt){ this.x += this.vx*dt; }
-}
+  if (event.code === 'KeyS') state.keys.jumpPressed = true;
 
-/* Power-up */
-class PowerUp extends GameObject{
-  constructor(x,y,imageKey, kind){
-    super(x,y,40,40,imageKey);
-    this.kind = kind;
+  if (event.code === 'KeyP' && !state.gameOver && !state.pausedByPopup) {
+    state.pausedByUser = !state.pausedByUser;
   }
-}
-
-/*SISTEMA SPAWN & GAME*/
-const CROSSWALKS = [ H-220, H-320 ]; // y positions dels crosswalks (on apareixen peatons)
-
-class Game {
-  constructor(){
-    this.player = new Player();
-    this.objects = [];
-    this.spawnTimer = 0;
-    this.obstTimer = 0;
-    this.disTimer = 0;
-    this.powerTimer = 8;
-    this.input = {left:false,right:false,up:false,down:false};
-    this.lastTime = 0;
-    this.running = true;
-    this.tipText = 'Respecta els passos de vianants.';
-    this.updateUI();
-  }
-
-  updateUI(){
-    document.getElementById('score').textContent = Math.floor(this.player.score);
-    document.getElementById('life').textContent = this.player.life;
-    document.getElementById('shield').textContent = this.player.shield>0 ? 'Sí' : 'No';
-    document.getElementById('tipText').innerHTML = this.tipText;
-  }
-
-  spawnPeaton(){
-    const dir = Math.random() < 0.5 ? 1 : -1;
-    const y = CROSSWALKS[Math.floor(Math.random()*CROSSWALKS.length)];
-    const x = dir>0 ? -80 : W+80;
-    const idx = Math.floor(Math.random()*ASSETS.peatons.length);
-    this.objects.push(new Peaton(x,y,dir, 'peaton'+idx));
-  }
-
-  spawnObstacle(){
-    const laneY = H - 180 + Math.floor(Math.random()*3)*48;
-    const dir = Math.random() < 0.6 ? -1 : 1;
-    const x = dir>0 ? -200 : W+200;
-    const speed = dir>0 ? rand(100,220) : -rand(100,220);
-    const idx = Math.floor(Math.random()*ASSETS.obstacles.length);
-    this.objects.push(new Obstacle(x, laneY, speed, 'obst'+idx));
-  }
-
-  spawnDistraction(){
-    const idx = Math.floor(Math.random()*ASSETS.distractions.length);
-    const x = rand(200, W-160);
-    const y = rand(H-360, H-120);
-    const info = {
-      'costat1.png': 'Mirar el mòbil mentre condueixes és una distracció seriosa: atura’t abans de mirar-lo.',
-      'costat2.png': 'Els auriculars poden impedir escoltar el trànsit. Evita-los o redueix volum.',
-      'costat3.png': 'Atura’t i comprova si venen bicicletes abans de creuar.',
-    }[ASSETS.distractions[idx]] || 'Vigila les distraccions i atura’t si cal.';
-    this.objects.push(new Distraction(x,y, 'dis'+idx, info));
-  }
-
-  spawnPowerUp(){
-    const idx = Math.floor(Math.random()*ASSETS.powerups.length);
-    const x = rand(200, W-160);
-    const y = rand(H-360, H-120);
-    const kind = ASSETS.powerups[idx].includes('casco') ? 'casco' : 'chaleco';
-    this.objects.push(new PowerUp(x,y,'pu'+idx, kind));
-  }
-
-  update(dt){
-    if(!this.running) return;
-
-    // Spawn timers
-    this.spawnTimer += dt;
-    this.obstTimer += dt;
-    this.disTimer += dt;
-    this.powerTimer -= dt;
-
-    if(this.spawnTimer > 1.6){ this.spawnPeaton(); this.spawnTimer = 0; }
-    if(this.obstTimer > 1.2){ this.spawnObstacle(); this.obstTimer = 0; }
-    if(this.disTimer > 4.5){ this.spawnDistraction(); this.disTimer = 0; }
-    if(this.powerTimer <= 0){ this.spawnPowerUp(); this.powerTimer = 12; }
-
-    this.player.update(dt, this.input);
-
-    // update objects
-    for(const o of this.objects) { if(o.update) o.update(dt); }
-
-    // collisions
-    for(const o of this.objects){
-      if(o.remove) continue;
-      if(aabb(this.player, o)){
-        if(o instanceof Obstacle){
-          if(this.player.shield>0){
-            this.player.score += 10; // protegit evita dany
-            o.remove = true;
-            this.tipText = 'Escut actiu: has evitat el dany!';
-          } else {
-            this.player.life -= 1;
-            this.player.score = Math.max(0, this.player.score - 20);
-            o.remove = true;
-            this.tipText = 'Has xocat amb un obstacle. Redueix la velocitat i atura si cal.';
-          }
-        } else if(o instanceof Peaton){
-          // si passes a prop d'un peató sense aturar -> multes educatives
-          this.player.score = Math.max(0, this.player.score - 10);
-          this.tipText = 'Has interaccionat amb un vianant: recorda cedir pas en crossing.';
-          // empetiteix la penalització i empuja el jugador cap enrere
-          this.player.x -= (o.vx>0? -40 : 40);
-          o.remove = true;
-        } else if(o instanceof Distraction){
-          this.player.score = Math.max(0, this.player.score - 15);
-          // mostrar consell didàctic del objecte
-          this.tipText = o.info;
-          o.remove = true;
-        } else if(o instanceof PowerUp){
-          if(o.kind === 'casco'){
-            this.player.shield = 8; // segons
-            this.player.score += 30;
-            this.tipText = 'Has agafat un casc! Protecció temporal activada.';
-          } else {
-            this.player.score += 25;
-            this.player.shield = 5;
-            this.tipText = 'Xapa reflectant: ets més visible i segur.';
-          }
-          o.remove = true;
-        }
-      }
-    }
-
-    // neteja
-    this.objects = this.objects.filter(o => !o.remove);
-
-    // petita recompensa passiva per conducció segura (no xocs recents)
-    this.player.score += dt * 2;
-
-    // condicions final
-    if(this.player.life <= 0){
-      this.running = false;
-      this.tipText = 'Game over — Practica la conducció segura. Reinicia per tornar-ho a intentar.';
-    }
-
-    this.updateUI();
-  }
-
-  draw(){
-    // fons: carretera i passos de vianants
-    ctx.clearRect(0,0,W,H);
-
-    // dibuixa vorera i carretera
-    ctx.fillStyle = '#3b3b3b';
-    ctx.fillRect(0, H-200, W, 200);
-
-    // passos de vianants (checks)
-    ctx.fillStyle = '#fff';
-    for(const y of CROSSWALKS){
-      const stepW = 36;
-      for(let x=0; x<W; x += stepW*2){
-        ctx.fillRect(x, y+12, stepW, 12);
-      }
-    }
-
-    // dibuixar entitats
-    // objectes en ordre: obstacles darrere, peatons, powerups, player, HUD
-    // obstacles
-    for(const o of this.objects.filter(o => o instanceof Obstacle)) o.draw();
-    for(const o of this.objects.filter(o => o instanceof Peaton)) o.draw();
-    for(const o of this.objects.filter(o => o instanceof PowerUp)) o.draw();
-    for(const o of this.objects.filter(o => o instanceof Distraction)) o.draw();
-
-    // dibuixar jugador
-    this.player.draw();
-
-    // puntets de info addicionals
-    ctx.fillStyle = 'rgba(0,0,0,0.4)';
-    ctx.fillRect(8,8,260,66);
-    ctx.fillStyle = '#fff';
-    ctx.font = '14px Arial';
-    ctx.fillText('Puntuació: ' + Math.floor(this.player.score), 16, 30);
-    ctx.fillText('Vida: ' + this.player.life, 16, 50);
-    ctx.fillText('Protegit: ' + (this.player.shield>0 ? 'Sí' : 'No'), 140, 50);
-
-    // mini indicador de recomanacions
-    ctx.font = '12px Arial';
-    ctx.fillStyle = '#bfe';
-    ctx.fillText('Tip: ' + this.tipText.slice(0,60) + (this.tipText.length>60 ? '...' : ''), 16, 80);
-  }
-
-  loop = (t) => {
-    if(!this.lastTime) this.lastTime = t;
-    const dt = Math.min(0.05, (t - this.lastTime)/1000);
-    this.lastTime = t;
-    if(assetsToLoad === 0){ this.update(dt); this.draw(); }
-    requestAnimationFrame(this.loop);
-  }
-
-  start(){
-    this.lastTime = 0;
-    requestAnimationFrame(this.loop);
-  }
-}
-
-/* ======= INPUT ======= */
-const game = new Game();
-window.addEventListener('keydown', e=>{
-  if(e.key === 'ArrowLeft' || e.key==='a') game.input.left=true;
-  if(e.key === 'ArrowRight' || e.key==='d') game.input.right=true;
-  if(e.key === 'ArrowUp' || e.key==='w') game.input.up=true;
-  if(e.key === 'ArrowDown' || e.key==='s') game.input.down=true;
-});
-window.addEventListener('keyup', e=>{
-  if(e.key === 'ArrowLeft' || e.key==='a') game.input.left=false;
-  if(e.key === 'ArrowRight' || e.key==='d') game.input.right=false;
-  if(e.key === 'ArrowUp' || e.key==='w') game.input.up=false;
-  if(e.key === 'ArrowDown' || e.key==='s') game.input.down=false;
 });
 
-/* Reiniciar */
-document.getElementById('restart').addEventListener('click', ()=>{
-  const g2 = new Game();
-  Object.assign(game, g2);
+window.addEventListener('keyup', (event) => {
+  if (event.code === 'ArrowLeft') state.keys.left = false;
+  if (event.code === 'ArrowRight') state.keys.right = false;
+  if (event.code === 'Space') state.keys.braking = false;
 });
 
-/* Actualitza UI també quan canvien textos del joc*/
-const uiUpdater = setInterval(()=>{ game.updateUI(); }, 300);
+ui.popupButton.addEventListener('click', closePopup);
+ui.restartBtn.addEventListener('click', resetGame);
 
-/* Comença quan assets carregats (o si n'hi ha errors)*/
-const waitForLoad = setInterval(()=>{
-  if(assetsToLoad === 0){
-    clearInterval(waitForLoad);
-    game.start();
-  }
-}, 100);
+resetGame();
+requestAnimationFrame(frame);

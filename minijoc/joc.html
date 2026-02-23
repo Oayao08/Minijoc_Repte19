@@ -1,72 +1,64 @@
 <!DOCTYPE html>
-<html lang="ca">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ves amb compte! | Minijoc de seguretat en patinet</title>
-
-    <meta name="description" content="Minijoc interactiu sobre conducció segura amb patinet. Practica l'atenció i evita distraccions.">
-    <meta name="theme-color" content="#000000">
-
+    <title>Scooter Safe Run | Minijuego 2D</title>
+    <meta name="description" content="Juego educativo 2D de seguridad vial en patinete con distracciones y peatones.">
     <link rel="stylesheet" href="../css/style-joc.css">
-    <link rel="icon" href="assets/ui/favicon.png" type="image/png">
 </head>
-
 <body>
-
     <header class="game-header">
-        <h1>Ves amb compte!</h1>
-        <p>Minijoc sobre atenció i seguretat en patinet</p>
+        <h1>SCOOTER SAFE RUN</h1>
+        <p>Educación vial interactiva</p>
     </header>
 
-    <main id="game-container" role="main">
+    <main id="game-shell">
+        <canvas id="game-canvas" width="1100" height="620" aria-label="Juego 2D de desplazamiento lateral"></canvas>
 
-        <!-- Canvas del joc -->
-        <canvas 
-            id="game-canvas" 
-            width="800" 
-            height="600"
-            role="img"
-            aria-label="Simulació de conducció en patinet amb distraccions">
-            
-            El teu navegador no suporta canvas. Actualitza'l per jugar.
-        </canvas>
-
-        <!-- Interfície del joc -->
-        <section id="game-ui" aria-live="polite">
-
-            <div id="score-container">
-                <span>Puntuació:</span>
-                <span id="score">0</span>
+        <section id="hud" aria-live="polite">
+            <div class="hud-box hud-left">
+                <span>Puntos: <strong id="score">0</strong> / 100</span>
+                <span id="speed-indicator">Velocidad: 0</span>
             </div>
-
-            <div id="alert-container" class="hidden" role="alert">
-                <p id="alert-text"></p>
+            <div class="hud-box hud-right">
+                <span>Vidas: <strong id="lives">3</strong></span>
+                <span class="seen-flags">Info: <em id="seen-mobile">✖</em> <em id="seen-headphones">✖</em> <em id="seen-pedestrian">✖</em></span>
             </div>
-
-            <div class="game-buttons">
-                <button id="start-btn" type="button">Iniciar joc</button>
-                <button id="restart-btn" type="button" class="hidden">Reiniciar</button>
-            </div>
-
         </section>
 
+        <section id="overlay" class="overlay hidden" aria-modal="true" role="dialog">
+            <article class="popup-card" id="popup-card">
+                <img id="popup-icon" class="popup-icon" alt="icono informativo">
+                <h2 id="popup-title"></h2>
+                <div class="popup-content">
+                    <p id="popup-body"></p>
+                </div>
+                <button id="popup-button" type="button">ENTENDIDO</button>
+            </article>
+        </section>
+
+        <section id="end-screen" class="overlay hidden" aria-modal="true" role="dialog">
+            <article class="popup-card end-card">
+                <h2 id="end-title">FIN</h2>
+                <div class="popup-content">
+                    <p id="end-body"></p>
+                </div>
+                <button id="restart-btn" type="button">REINICIAR</button>
+            </article>
+        </section>
     </main>
 
-    <aside id="game-controls" aria-label="Controls del joc">
-        <h2>Controls</h2>
+    <aside id="controls-panel">
+        <h2>Controles</h2>
         <ul>
-            <li>← → : Moure el patinet</li>
-            <li>Espai : Frenar</li>
-            <li>Click notificació : Ignorar distracció</li>
+            <li>← / → moverse</li>
+            <li>ESPACIO parar (idle inmediato)</li>
+            <li>S saltar</li>
+            <li>P pausar/reanudar</li>
         </ul>
     </aside>
 
     <script src="../js/game.js" defer></script>
-
-    <footer>
-        <p>Aprén jugant. Respecta les senyales. Cuida el teu entorn.</p>
-    </footer>
-
 </body>
 </html>
