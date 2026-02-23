@@ -530,20 +530,20 @@ window.addEventListener('keyup', (e) => {
 
 // Inicia el loop
 requestAnimationFrame(loop);
--/* Actualitza UI també quan canvien textos del joc*/
--const uiUpdater = setInterval(()=>{ game.updateUI(); }, 300);
-+ui.popupConfirm.addEventListener('click', closePopup);
-+ui.restartBtn.addEventListener('click', () => {
-+  window.location.reload();
-+});
- 
--/* Comença quan assets carregats (o si n'hi ha errors)*/
--const waitForLoad = setInterval(()=>{
--  if(assetsToLoad === 0){
--    clearInterval(waitForLoad);
--    game.start();
--  }
--}, 100);
-+updateHud();
-+showPopup('initial');
-+requestAnimationFrame(loop);
+/* Actualitza UI també quan canvien textos del joc*/
+const uiUpdater = setInterval(()=>{ game.updateUI(); }, 300);
+ui.popupConfirm.addEventListener('click', closePopup);
+ui.restartBtn.addEventListener('click', () => {
+  window.location.reload();
+});
+
+/* Comença quan assets carregats (o si n'hi ha errors)*/
+const waitForLoad = setInterval(()=>{
+  if(assetsToLoad === 0){
+    clearInterval(waitForLoad);
+    game.start();
+  }
+}, 100);
+updateHud();
+showPopup('initial');
+requestAnimationFrame(loop);
