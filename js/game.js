@@ -8,6 +8,8 @@ const ctx = canvas.getContext("2d");
 const startBtn = document.getElementById("start-btn");
 const restartBtn = document.getElementById("restart-btn");
 const scoreEl = document.getElementById("score");
+const alertContainer = document.getElementById("alert-container");
+const alertText = document.getElementById("alert-text");
 
 let gameState = "start"; // start | playing | gameover
 let score = 0;
@@ -27,45 +29,40 @@ for (let i = 1; i <= 5; i++) {
     pedestriansImgs.push(img);
 }
 
+const sidesImgs = [];
+for (let i = 1; i <= 5; i++) {
+    const img = new Image();
+    img.src = `../img/costat${i}.png`;
+    sidesImgs.push(img);
+}
+
 // ===============================
 // JUGADOR
 // ===============================
 
 const player = {
     x: canvas.width / 2 - 30,
-    y: canvas.height - 100,
+    y: canvas.height - 120,
     width: 60,
     height: 60,
     speed: 6
 };
 
 // ===============================
-// PEATONES
+// OBSTÁCULOS / PEATONES
 // ===============================
 
-let pedestrians = [];
-
-function spawnPedestrian() {
-    const img = pedestriansImgs[Math.floor(Math.random() * pedestriansImgs.length)];
-
-    pedestrians.push({
-        img,
-        x: -60,
-        y: stopZone.y + 10,
-        width: 50,
-        height: 50,
-        speed: 2 + Math.random() * 1.5
-    });
-}
+let obstacles = [];
+let ticks = 0;
+let obstacleInterval = 90; // ticks entre obstáculos
+let crosswalkInterval = 600; // ticks entre pasos de peatones
+let distractions = [];
 
 // ===============================
-// ZONA STOP
+// ZONA DE PASO DE PEATONES
 // ===============================
 
-const stopZone = {
-    y: canvas.height / 2 - 40,
-    height: 80
-};
+const crosswalks = []; // cada crosswalk tiene y y estado de peatón cruzando
 
 // ===============================
 // CONTROLES
@@ -75,43 +72,89 @@ let keys = {};
 
 document.addEventListener("keydown", (e) => {
     keys[e.code] = true;
-
-    if (e.code === "Space") {
-        isBraking = true;
-    }
+    if (e.code === "Space") isBraking = true;
 });
 
 document.addEventListener("keyup", (e) => {
     keys[e.code] = false;
-
-    if (e.code === "Space") {
-        isBraking = false;
-    }
+    if (e.code === "Space") isBraking = false;
 });
 
 // ===============================
-// UPDATE
+// FUNCIONES DE UPDATE
 // ===============================
 
 function updatePlayer() {
-    if (keys["ArrowLeft"] && player.x > 0) {
-        player.x -= player.speed;
-    }
-    if (keys["ArrowRight"] && player.x + player.width < canvas.width) {
-        player.x += player.speed;
-    }
+    if (keys["ArrowLeft"] && player.x > 0) player.x -= player.speed;
+    if (keys["ArrowRight"] && player.x + player.width < canvas.width) player.x += player.speed;
 }
 
-function updatePedestrians() {
-    pedestrians.forEach(p => {
-        p.x += p.speed;
-    });
+function updateObstacles() {
+    obstacles.forEach(o => o.y += 4); // velocidad de avance del mundo
+    obstacles = obstacles.filter(o => o.y < canvas.height + 60);
+}
 
-    pedestrians = pedestrians.filter(p => p.x < canvas.width + 60);
+function updateCrosswalks() {
+    crosswalks.forEach(c => {
+        // mover peatones dentro del crosswalk
+        c.peas.forEach(p => p.y += 4);
+    });
+}
+
+function spawnObstacle() {
+    const type = Math.random() < 0.5 ? "pedestrian" : "side";
+    let img;
+    if (type === "pedestrian") img = pedestriansImgs[Math.floor(Math.random() * pedestriansImgs.length)];
+    else img = sidesImgs[Math.floor(Math.random() * sidesImgs.length)];
+
+    obstacles.push({
+        type,
+        img,
+        x: Math.random() * (canvas.width - 50),
+        y: -60,
+        width: 50,
+        height: 50
+    });
+}
+
+function spawnCrosswalk() {
+    const peas = [];
+    const numPeas = 2 + Math.floor(Math.random() * 3);
+    for (let i = 0; i < numPeas; i++) {
+        const img = pedestriansImgs[Math.floor(Math.random() * pedestriansImgs.length)];
+        peas.push({
+            img,
+            x: 80 + i * 60,
+            y: -50,
+            width: 50,
+            height: 50
+        });
+    }
+    crosswalks.push({ y: -50, peas });
 }
 
 // ===============================
-// COLISIONES
+// DISTRACCIONES
+// ===============================
+
+function spawnDistraction() {
+    const messages = [
+        "Notificació: WhatsApp!",
+        "Notificació: TikTok!",
+        "Missatge important!",
+        "Recordatori: Fer feina!"
+    ];
+    const msg = messages[Math.floor(Math.random() * messages.length)];
+    distractions.push({ text: msg, ttl: 200 });
+}
+
+function updateDistractions() {
+    distractions.forEach(d => d.ttl--);
+    distractions = distractions.filter(d => d.ttl > 0);
+}
+
+// ===============================
+// COLISIONES Y REGLAS
 // ===============================
 
 function checkCollision(a, b) {
@@ -125,46 +168,67 @@ function checkCollision(a, b) {
 
 function checkGameRules() {
 
-    pedestrians.forEach(p => {
-        if (checkCollision(player, p)) {
-            gameOver("Has atropellat un vianant!");
-        }
+    // Obstáculos
+    obstacles.forEach(o => {
+        if (checkCollision(player, o)) gameOver("Has xocat amb un obstacle!");
     });
 
-    // Si entra en zona STOP sin frenar
-    if (
-        player.y < stopZone.y + stopZone.height &&
-        player.y + player.height > stopZone.y
-    ) {
-        if (!isBraking) {
-            gameOver("No has frenat al pas de vianants!");
+    // Crosswalk peatones
+    crosswalks.forEach(c => {
+        c.peas.forEach(p => {
+            if (checkCollision(player, p)) gameOver("Has atropellat un vianant al pas de vianants!");
+        });
+    });
+
+    // Penalización si no frena en crosswalk
+    crosswalks.forEach(c => {
+        if (
+            player.y < c.y + 60 &&
+            player.y + player.height > c.y
+        ) {
+            if (!isBraking) gameOver("No has frenat al pas de vianants!");
         }
-    }
+    });
 }
 
 // ===============================
-// DRAW
+// DIBUJO
 // ===============================
 
 function drawBackground() {
-    ctx.fillStyle = "#555";
+    ctx.fillStyle = "#8fd3ff";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
-}
-
-function drawCrosswalk() {
-    ctx.fillStyle = "white";
-    for (let i = 0; i < canvas.width; i += 40) {
-        ctx.fillRect(i, stopZone.y, 20, stopZone.height);
-    }
 }
 
 function drawPlayer() {
     ctx.drawImage(playerImg, player.x, player.y, player.width, player.height);
 }
 
-function drawPedestrians() {
-    pedestrians.forEach(p => {
-        ctx.drawImage(p.img, p.x, p.y, p.width, p.height);
+function drawObstacles() {
+    obstacles.forEach(o => ctx.drawImage(o.img, o.x, o.y, o.width, o.height));
+}
+
+function drawCrosswalks() {
+    crosswalks.forEach(c => {
+        // dibujar rayas
+        ctx.fillStyle = "white";
+        for (let i = 0; i < canvas.width; i += 40) {
+            ctx.fillRect(i, c.y, 20, 60);
+        }
+        // dibujar peatones
+        c.peas.forEach(p => ctx.drawImage(p.img, p.x, p.y, p.width, p.height));
+        // mover crosswalk down
+        c.y += 4;
+    });
+}
+
+function drawDistractions() {
+    distractions.forEach((d, i) => {
+        ctx.fillStyle = "#ff1744";
+        ctx.fillRect(10, 10 + i * 40, 200, 30);
+        ctx.fillStyle = "#fff";
+        ctx.font = "14px sans-serif";
+        ctx.fillText(d.text, 15, 30 + i * 40);
     });
 }
 
@@ -173,22 +237,35 @@ function drawPedestrians() {
 // ===============================
 
 function gameLoop() {
-
     if (gameState !== "playing") return;
+
+    ticks++;
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     drawBackground();
-    drawCrosswalk();
+    drawCrosswalks();
+    drawObstacles();
+    drawPlayer();
+    drawDistractions();
 
     updatePlayer();
-    updatePedestrians();
-
-    drawPedestrians();
-    drawPlayer();
+    updateObstacles();
+    updateCrosswalks();
+    updateDistractions();
 
     checkGameRules();
 
+    // Generar obstáculos periódicamente
+    if (ticks % obstacleInterval === 0) spawnObstacle();
+
+    // Generar crosswalk periódicamente
+    if (ticks % crosswalkInterval === 0) spawnCrosswalk();
+
+    // Generar distracciones aleatorias
+    if (ticks % 500 === 0) spawnDistraction();
+
+    // Puntaje
     score++;
     scoreEl.textContent = score;
 
@@ -202,10 +279,16 @@ function gameLoop() {
 function startGame() {
     gameState = "playing";
     score = 0;
-    pedestrians = [];
+    ticks = 0;
+    isBraking = false;
+    obstacles = [];
+    crosswalks.length = 0;
+    distractions.length = 0;
     player.x = canvas.width / 2 - 30;
+
     startBtn.classList.add("hidden");
     restartBtn.classList.add("hidden");
+
     gameLoop();
 }
 
@@ -215,17 +298,5 @@ function gameOver(message) {
     restartBtn.classList.remove("hidden");
 }
 
-startBtn.addEventListener("click", () => {
-    startGame();
-});
-
-restartBtn.addEventListener("click", () => {
-    startGame();
-});
-
-// Spawn peatones cada 2 segundos
-setInterval(() => {
-    if (gameState === "playing") {
-        spawnPedestrian();
-    }
-}, 2000);
+startBtn.addEventListener("click", startGame);
+restartBtn.addEventListener("click", startGame);
