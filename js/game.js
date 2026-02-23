@@ -38,7 +38,7 @@ loadAssets(ASSETS.obstacles,'obst');
 loadAssets(ASSETS.distractions,'dis');
 loadAssets(ASSETS.powerups,'pu');
 
-/* Inicia el joc immediatament sense esperar */
+/* Inicia el joc immediatament sense esperar*/
 game.start();
 
 /* ENTITATS*/
@@ -137,7 +137,7 @@ class PowerUp extends GameObject{
   }
 }
 
-/* ======= SISTEMA SPAWN & GAME ======= */
+/*SISTEMA SPAWN & GAME*/
 const CROSSWALKS = [ H-220, H-320 ]; // y positions dels crosswalks (on apareixen peatons)
 
 class Game {
@@ -184,11 +184,9 @@ class Game {
     const x = rand(200, W-160);
     const y = rand(H-360, H-120);
     const info = {
-      'smartphone.png': 'Mirar el mòbil mentre condueixes és una distracció seriosa: atura’t abans de mirar-lo.',
-      'auriculars.png': 'Els auriculars poden impedir escoltar el trànsit. Evita-los o redueix volum.',
-      'semafor.png': 'Respecta els semàfors: són clau per la seguretat de tothom.',
-      'bici.png': 'Atura’t i comprova si venen bicicletes abans de creuar.',
-      'gos.png': 'Animals poden aparèixer inesperadament: redueix la velocitat i prepara’t a frenar.'
+      'costat1.png': 'Mirar el mòbil mentre condueixes és una distracció seriosa: atura’t abans de mirar-lo.',
+      'costat2.png': 'Els auriculars poden impedir escoltar el trànsit. Evita-los o redueix volum.',
+      'costat3.png': 'Atura’t i comprova si venen bicicletes abans de creuar.',
     }[ASSETS.distractions[idx]] || 'Vigila les distraccions i atura’t si cal.';
     this.objects.push(new Distraction(x,y, 'dis'+idx, info));
   }
