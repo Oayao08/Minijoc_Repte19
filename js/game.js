@@ -1,302 +1,367 @@
-// ===============================
-// CONFIGURACIÓN INICIAL
-// ===============================
-
-const canvas = document.getElementById("game-canvas");
-const ctx = canvas.getContext("2d");
-
-const startBtn = document.getElementById("start-btn");
-const restartBtn = document.getElementById("restart-btn");
-const scoreEl = document.getElementById("score");
-const alertContainer = document.getElementById("alert-container");
-const alertText = document.getElementById("alert-text");
-
-let gameState = "start"; // start | playing | gameover
-let score = 0;
-let isBraking = false;
-
-// ===============================
-// CARGA DE IMÁGENES
-// ===============================
-
-const playerImg = new Image();
-playerImg.src = "../img/personatge_principal.png";
-
-const pedestriansImgs = [];
-for (let i = 1; i <= 5; i++) {
-    const img = new Image();
-    img.src = `../img/personatge${i}.png`;
-    pedestriansImgs.push(img);
-}
-
-const sidesImgs = [];
-for (let i = 1; i <= 5; i++) {
-    const img = new Image();
-    img.src = `../img/costat${i}.png`;
-    sidesImgs.push(img);
-}
-
-// ===============================
-// JUGADOR
-// ===============================
-
-const player = {
-    x: canvas.width / 2 - 30,
-    y: canvas.height - 120,
-    width: 60,
-    height: 60,
-    speed: 6
+const ASSETS = {
+  player: 'player.png', // posa la teva imatge del patinet (o deixa en blanc: es dibuixa un rectangle)
+  peatons: ['personatge1.png','personatge2.png','personatge3.png','personatge4.png','personatge5.png'],
+  obstacles: ['costat1.png','costat2.png','costat3.png','costat4.png','costat5.png'],
+  distractions: ['smartphone.png','auriculars.png','semafor.png','bici.png','gos.png'],
+  powerups: ['casco.png','chaleco.png']
 };
 
-// ===============================
-// OBSTÁCULOS / PEATONES
-// ===============================
-
-let obstacles = [];
-let ticks = 0;
-let obstacleInterval = 90; // ticks entre obstáculos
-let crosswalkInterval = 600; // ticks entre pasos de peatones
-let distractions = [];
-
-// ===============================
-// ZONA DE PASO DE PEATONES
-// ===============================
-
-const crosswalks = []; // cada crosswalk tiene y y estado de peatón cruzando
-
-// ===============================
-// CONTROLES
-// ===============================
-
-let keys = {};
-
-document.addEventListener("keydown", (e) => {
-    keys[e.code] = true;
-    if (e.code === "Space") isBraking = true;
-});
-
-document.addEventListener("keyup", (e) => {
-    keys[e.code] = false;
-    if (e.code === "Space") isBraking = false;
-});
-
-// ===============================
-// FUNCIONES DE UPDATE
-// ===============================
-
-function updatePlayer() {
-    if (keys["ArrowLeft"] && player.x > 0) player.x -= player.speed;
-    if (keys["ArrowRight"] && player.x + player.width < canvas.width) player.x += player.speed;
+let state = null;
+/*UTILITATS*/
+function clamp(v,a,b){return Math.max(a, Math.min(b, v));}
+function rand(a,b){return a + Math.random()*(b-a);}
+function aabb(a,b){ // col·lisió simple AABB
+  return !(a.x+a.w < b.x || a.x > b.x + b.w || a.y + a.h < b.y || a.y > b.y + b.h);
 }
 
-function updateObstacles() {
-    obstacles.forEach(o => o.y += 4); // velocidad de avance del mundo
-    obstacles = obstacles.filter(o => o.y < canvas.height + 60);
+/* PRELOAD IMATGES SEGUR */
+const images = {};
+function loadAssets(assetList, prefix){
+  assetList.forEach((src,i)=>{
+    const img = new Image();
+    img.src = src;
+    images[prefix+i] = null;
+    img.onload = ()=>{ images[prefix+i] = img; };
+    img.onerror = ()=>{ console.warn('No trobat:', src); images[prefix+i]=null; };
+  });
 }
 
-function updateCrosswalks() {
-    crosswalks.forEach(c => {
-        // mover peatones dentro del crosswalk
-        c.peas.forEach(p => p.y += 4);
-    });
-}
+// Player fallback
+images['player'] = null;
+const imgPlayer = new Image();
+imgPlayer.src = ASSETS.player;
+imgPlayer.onload = ()=>images['player']=imgPlayer;
+imgPlayer.onerror = ()=>{ console.warn('Player no trobat, es dibuixarà rectangle'); images['player']=null; }
 
-function spawnObstacle() {
-    const type = Math.random() < 0.5 ? "pedestrian" : "side";
-    let img;
-    if (type === "pedestrian") img = pedestriansImgs[Math.floor(Math.random() * pedestriansImgs.length)];
-    else img = sidesImgs[Math.floor(Math.random() * sidesImgs.length)];
+loadAssets(ASSETS.peatons,'peaton');
+loadAssets(ASSETS.obstacles,'obst');
+loadAssets(ASSETS.distractions,'dis');
+loadAssets(ASSETS.powerups,'pu');
 
-    obstacles.push({
-        type,
-        img,
-        x: Math.random() * (canvas.width - 50),
-        y: -60,
-        width: 50,
-        height: 50
-    });
-}
+/* Inicia el joc immediatament sense esperar */
+game.start();
 
-function spawnCrosswalk() {
-    const peas = [];
-    const numPeas = 2 + Math.floor(Math.random() * 3);
-    for (let i = 0; i < numPeas; i++) {
-        const img = pedestriansImgs[Math.floor(Math.random() * pedestriansImgs.length)];
-        peas.push({
-            img,
-            x: 80 + i * 60,
-            y: -50,
-            width: 50,
-            height: 50
-        });
+/* ENTITATS*/
+class GameObject {
+  constructor(x,y,w,h,image=null){
+    this.x=x; this.y=y; this.w=w; this.h=h; this.image=image;
+    this.vx=0; this.vy=0;
+    this.remove=false;
+  }
+  draw(){
+    if(this.image && images[this.image]){
+      ctx.drawImage(images[this.image], this.x, this.y, this.w, this.h);
+    } else {
+      // fallback visual (segons tipus)
+      ctx.fillStyle = '#666';
+      ctx.fillRect(this.x, this.y, this.w, this.h);
     }
-    crosswalks.push({ y: -50, peas });
+  }
 }
 
-// ===============================
-// DISTRACCIONES
-// ===============================
-
-function spawnDistraction() {
-    const messages = [
-        "Notificació: WhatsApp!",
-        "Notificació: TikTok!",
-        "Missatge important!",
-        "Recordatori: Fer feina!"
-    ];
-    const msg = messages[Math.floor(Math.random() * messages.length)];
-    distractions.push({ text: msg, ttl: 200 });
+/*Jugador controlat: patinet*/
+class Player extends GameObject{
+  constructor(){
+    super(100, H-140, 64, 64, 'player');
+    this.speed=260;
+    this.life=3;
+    this.score=0;
+    this.shield=0; // segons segons de protecció
+  }
+  update(dt, input){
+    let dx=0, dy=0;
+    if(input.left) dx -= 1;
+    if(input.right) dx += 1;
+    if(input.up) dy -= 1;
+    if(input.down) dy += 1;
+    const len = Math.hypot(dx,dy) || 1;
+    this.x += (dx/len) * this.speed * dt;
+    this.y += (dy/len) * this.speed * dt;
+    this.x = clamp(this.x, 0, W - this.w);
+    this.y = clamp(this.y, 0, H - this.h - 20);
+    if(this.shield>0) this.shield = Math.max(0, this.shield - dt);
+  }
+  draw(){
+    // si hi ha imatge del player la mostrem, si no, dibuix minimal
+    if(images['player']){
+      ctx.drawImage(images['player'], this.x, this.y, this.w, this.h);
+    } else {
+      ctx.fillStyle = '#ffcc00';
+      ctx.fillRect(this.x, this.y, this.w, this.h);
+      ctx.fillStyle = '#000'; ctx.fillText('PAT', this.x+8, this.y+36);
+    }
+    // indicador escut
+    if(this.shield>0){
+      ctx.strokeStyle = 'rgba(80,220,255,0.9)';
+      ctx.lineWidth = 3;
+      ctx.strokeRect(this.x-4, this.y-4, this.w+8, this.h+8);
+    }
+  }
 }
 
-function updateDistractions() {
-    distractions.forEach(d => d.ttl--);
-    distractions = distractions.filter(d => d.ttl > 0);
+/*Peató: apareix i creua un crosswalk */
+class Peaton extends GameObject{
+  constructor(x, y, dir, imageKey){
+    super(x,y,48,64,imageKey);
+    this.vx = dir * rand(40,80);
+    this.h = 56;
+  }
+  update(dt){ this.x += this.vx * dt; if(this.x < -100 || this.x > W+100) this.remove=true; }
 }
 
-// ===============================
-// COLISIONES Y REGLAS
-// ===============================
-
-function checkCollision(a, b) {
-    return (
-        a.x < b.x + b.width &&
-        a.x + a.width > b.x &&
-        a.y < b.y + b.height &&
-        a.y + a.height > b.y
-    );
+/* Obstáculos: cotxes/patinetes/bicis (mòbils) */
+class Obstacle extends GameObject{
+  constructor(x,y,vx,imageKey){
+    super(x,y,72,48,imageKey);
+    this.vx = vx;
+    this.h = 48;
+  }
+  update(dt){ this.x += this.vx * dt; if(this.x < -200 || this.x > W+200) this.remove=true; }
 }
 
-function checkGameRules() {
+/* Distracció: icona educativa (pot ser estàtica o mòbil) */
+class Distraction extends GameObject{
+  constructor(x,y,imageKey, info){
+    super(x,y,44,44,imageKey);
+    this.info = info; // missatge educatiu
+    this.vx = 0;
+  }
+  update(dt){ this.x += this.vx*dt; }
+}
 
-    // Obstáculos
-    obstacles.forEach(o => {
-        if (checkCollision(player, o)) gameOver("Has xocat amb un obstacle!");
-    });
+/* Power-up */
+class PowerUp extends GameObject{
+  constructor(x,y,imageKey, kind){
+    super(x,y,40,40,imageKey);
+    this.kind = kind;
+  }
+}
 
-    // Crosswalk peatones
-    crosswalks.forEach(c => {
-        c.peas.forEach(p => {
-            if (checkCollision(player, p)) gameOver("Has atropellat un vianant al pas de vianants!");
-        });
-    });
+/* ======= SISTEMA SPAWN & GAME ======= */
+const CROSSWALKS = [ H-220, H-320 ]; // y positions dels crosswalks (on apareixen peatons)
 
-    // Penalización si no frena en crosswalk
-    crosswalks.forEach(c => {
-        if (
-            player.y < c.y + 60 &&
-            player.y + player.height > c.y
-        ) {
-            if (!isBraking) gameOver("No has frenat al pas de vianants!");
+class Game {
+  constructor(){
+    this.player = new Player();
+    this.objects = [];
+    this.spawnTimer = 0;
+    this.obstTimer = 0;
+    this.disTimer = 0;
+    this.powerTimer = 8;
+    this.input = {left:false,right:false,up:false,down:false};
+    this.lastTime = 0;
+    this.running = true;
+    this.tipText = 'Respecta els passos de vianants.';
+    this.updateUI();
+  }
+
+  updateUI(){
+    document.getElementById('score').textContent = Math.floor(this.player.score);
+    document.getElementById('life').textContent = this.player.life;
+    document.getElementById('shield').textContent = this.player.shield>0 ? 'Sí' : 'No';
+    document.getElementById('tipText').innerHTML = this.tipText;
+  }
+
+  spawnPeaton(){
+    const dir = Math.random() < 0.5 ? 1 : -1;
+    const y = CROSSWALKS[Math.floor(Math.random()*CROSSWALKS.length)];
+    const x = dir>0 ? -80 : W+80;
+    const idx = Math.floor(Math.random()*ASSETS.peatons.length);
+    this.objects.push(new Peaton(x,y,dir, 'peaton'+idx));
+  }
+
+  spawnObstacle(){
+    const laneY = H - 180 + Math.floor(Math.random()*3)*48;
+    const dir = Math.random() < 0.6 ? -1 : 1;
+    const x = dir>0 ? -200 : W+200;
+    const speed = dir>0 ? rand(100,220) : -rand(100,220);
+    const idx = Math.floor(Math.random()*ASSETS.obstacles.length);
+    this.objects.push(new Obstacle(x, laneY, speed, 'obst'+idx));
+  }
+
+  spawnDistraction(){
+    const idx = Math.floor(Math.random()*ASSETS.distractions.length);
+    const x = rand(200, W-160);
+    const y = rand(H-360, H-120);
+    const info = {
+      'smartphone.png': 'Mirar el mòbil mentre condueixes és una distracció seriosa: atura’t abans de mirar-lo.',
+      'auriculars.png': 'Els auriculars poden impedir escoltar el trànsit. Evita-los o redueix volum.',
+      'semafor.png': 'Respecta els semàfors: són clau per la seguretat de tothom.',
+      'bici.png': 'Atura’t i comprova si venen bicicletes abans de creuar.',
+      'gos.png': 'Animals poden aparèixer inesperadament: redueix la velocitat i prepara’t a frenar.'
+    }[ASSETS.distractions[idx]] || 'Vigila les distraccions i atura’t si cal.';
+    this.objects.push(new Distraction(x,y, 'dis'+idx, info));
+  }
+
+  spawnPowerUp(){
+    const idx = Math.floor(Math.random()*ASSETS.powerups.length);
+    const x = rand(200, W-160);
+    const y = rand(H-360, H-120);
+    const kind = ASSETS.powerups[idx].includes('casco') ? 'casco' : 'chaleco';
+    this.objects.push(new PowerUp(x,y,'pu'+idx, kind));
+  }
+
+  update(dt){
+    if(!this.running) return;
+
+    // Spawn timers
+    this.spawnTimer += dt;
+    this.obstTimer += dt;
+    this.disTimer += dt;
+    this.powerTimer -= dt;
+
+    if(this.spawnTimer > 1.6){ this.spawnPeaton(); this.spawnTimer = 0; }
+    if(this.obstTimer > 1.2){ this.spawnObstacle(); this.obstTimer = 0; }
+    if(this.disTimer > 4.5){ this.spawnDistraction(); this.disTimer = 0; }
+    if(this.powerTimer <= 0){ this.spawnPowerUp(); this.powerTimer = 12; }
+
+    this.player.update(dt, this.input);
+
+    // update objects
+    for(const o of this.objects) { if(o.update) o.update(dt); }
+
+    // collisions
+    for(const o of this.objects){
+      if(o.remove) continue;
+      if(aabb(this.player, o)){
+        if(o instanceof Obstacle){
+          if(this.player.shield>0){
+            this.player.score += 10; // protegit evita dany
+            o.remove = true;
+            this.tipText = 'Escut actiu: has evitat el dany!';
+          } else {
+            this.player.life -= 1;
+            this.player.score = Math.max(0, this.player.score - 20);
+            o.remove = true;
+            this.tipText = 'Has xocat amb un obstacle. Redueix la velocitat i atura si cal.';
+          }
+        } else if(o instanceof Peaton){
+          // si passes a prop d'un peató sense aturar -> multes educatives
+          this.player.score = Math.max(0, this.player.score - 10);
+          this.tipText = 'Has interaccionat amb un vianant: recorda cedir pas en crossing.';
+          // empetiteix la penalització i empuja el jugador cap enrere
+          this.player.x -= (o.vx>0? -40 : 40);
+          o.remove = true;
+        } else if(o instanceof Distraction){
+          this.player.score = Math.max(0, this.player.score - 15);
+          // mostrar consell didàctic del objecte
+          this.tipText = o.info;
+          o.remove = true;
+        } else if(o instanceof PowerUp){
+          if(o.kind === 'casco'){
+            this.player.shield = 8; // segons
+            this.player.score += 30;
+            this.tipText = 'Has agafat un casc! Protecció temporal activada.';
+          } else {
+            this.player.score += 25;
+            this.player.shield = 5;
+            this.tipText = 'Xapa reflectant: ets més visible i segur.';
+          }
+          o.remove = true;
         }
-    });
+      }
+    }
+
+    // neteja
+    this.objects = this.objects.filter(o => !o.remove);
+
+    // petita recompensa passiva per conducció segura (no xocs recents)
+    this.player.score += dt * 2;
+
+    // condicions final
+    if(this.player.life <= 0){
+      this.running = false;
+      this.tipText = 'Game over — Practica la conducció segura. Reinicia per tornar-ho a intentar.';
+    }
+
+    this.updateUI();
+  }
+
+  draw(){
+    // fons: carretera i passos de vianants
+    ctx.clearRect(0,0,W,H);
+
+    // dibuixa vorera i carretera
+    ctx.fillStyle = '#3b3b3b';
+    ctx.fillRect(0, H-200, W, 200);
+
+    // passos de vianants (checks)
+    ctx.fillStyle = '#fff';
+    for(const y of CROSSWALKS){
+      const stepW = 36;
+      for(let x=0; x<W; x += stepW*2){
+        ctx.fillRect(x, y+12, stepW, 12);
+      }
+    }
+
+    // dibuixar entitats
+    // objectes en ordre: obstacles darrere, peatons, powerups, player, HUD
+    // obstacles
+    for(const o of this.objects.filter(o => o instanceof Obstacle)) o.draw();
+    for(const o of this.objects.filter(o => o instanceof Peaton)) o.draw();
+    for(const o of this.objects.filter(o => o instanceof PowerUp)) o.draw();
+    for(const o of this.objects.filter(o => o instanceof Distraction)) o.draw();
+
+    // dibuixar jugador
+    this.player.draw();
+
+    // puntets de info addicionals
+    ctx.fillStyle = 'rgba(0,0,0,0.4)';
+    ctx.fillRect(8,8,260,66);
+    ctx.fillStyle = '#fff';
+    ctx.font = '14px Arial';
+    ctx.fillText('Puntuació: ' + Math.floor(this.player.score), 16, 30);
+    ctx.fillText('Vida: ' + this.player.life, 16, 50);
+    ctx.fillText('Protegit: ' + (this.player.shield>0 ? 'Sí' : 'No'), 140, 50);
+
+    // mini indicador de recomanacions
+    ctx.font = '12px Arial';
+    ctx.fillStyle = '#bfe';
+    ctx.fillText('Tip: ' + this.tipText.slice(0,60) + (this.tipText.length>60 ? '...' : ''), 16, 80);
+  }
+
+  loop = (t) => {
+    if(!this.lastTime) this.lastTime = t;
+    const dt = Math.min(0.05, (t - this.lastTime)/1000);
+    this.lastTime = t;
+    if(assetsToLoad === 0){ this.update(dt); this.draw(); }
+    requestAnimationFrame(this.loop);
+  }
+
+  start(){
+    this.lastTime = 0;
+    requestAnimationFrame(this.loop);
+  }
 }
 
-// ===============================
-// DIBUJO
-// ===============================
+/* ======= INPUT ======= */
+const game = new Game();
+window.addEventListener('keydown', e=>{
+  if(e.key === 'ArrowLeft' || e.key==='a') game.input.left=true;
+  if(e.key === 'ArrowRight' || e.key==='d') game.input.right=true;
+  if(e.key === 'ArrowUp' || e.key==='w') game.input.up=true;
+  if(e.key === 'ArrowDown' || e.key==='s') game.input.down=true;
+});
+window.addEventListener('keyup', e=>{
+  if(e.key === 'ArrowLeft' || e.key==='a') game.input.left=false;
+  if(e.key === 'ArrowRight' || e.key==='d') game.input.right=false;
+  if(e.key === 'ArrowUp' || e.key==='w') game.input.up=false;
+  if(e.key === 'ArrowDown' || e.key==='s') game.input.down=false;
+});
 
-function drawBackground() {
-    ctx.fillStyle = "#8fd3ff";
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-}
+/* Reiniciar */
+document.getElementById('restart').addEventListener('click', ()=>{
+  const g2 = new Game();
+  Object.assign(game, g2);
+});
 
-function drawPlayer() {
-    ctx.drawImage(playerImg, player.x, player.y, player.width, player.height);
-}
+/* Actualitza UI també quan canvien textos del joc*/
+const uiUpdater = setInterval(()=>{ game.updateUI(); }, 300);
 
-function drawObstacles() {
-    obstacles.forEach(o => ctx.drawImage(o.img, o.x, o.y, o.width, o.height));
-}
-
-function drawCrosswalks() {
-    crosswalks.forEach(c => {
-        // dibujar rayas
-        ctx.fillStyle = "white";
-        for (let i = 0; i < canvas.width; i += 40) {
-            ctx.fillRect(i, c.y, 20, 60);
-        }
-        // dibujar peatones
-        c.peas.forEach(p => ctx.drawImage(p.img, p.x, p.y, p.width, p.height));
-        // mover crosswalk down
-        c.y += 4;
-    });
-}
-
-function drawDistractions() {
-    distractions.forEach((d, i) => {
-        ctx.fillStyle = "#ff1744";
-        ctx.fillRect(10, 10 + i * 40, 200, 30);
-        ctx.fillStyle = "#fff";
-        ctx.font = "14px sans-serif";
-        ctx.fillText(d.text, 15, 30 + i * 40);
-    });
-}
-
-// ===============================
-// GAME LOOP
-// ===============================
-
-function gameLoop() {
-    if (gameState !== "playing") return;
-
-    ticks++;
-
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    drawBackground();
-    drawCrosswalks();
-    drawObstacles();
-    drawPlayer();
-    drawDistractions();
-
-    updatePlayer();
-    updateObstacles();
-    updateCrosswalks();
-    updateDistractions();
-
-    checkGameRules();
-
-    // Generar obstáculos periódicamente
-    if (ticks % obstacleInterval === 0) spawnObstacle();
-
-    // Generar crosswalk periódicamente
-    if (ticks % crosswalkInterval === 0) spawnCrosswalk();
-
-    // Generar distracciones aleatorias
-    if (ticks % 500 === 0) spawnDistraction();
-
-    // Puntaje
-    score++;
-    scoreEl.textContent = score;
-
-    requestAnimationFrame(gameLoop);
-}
-
-// ===============================
-// GAME CONTROL
-// ===============================
-
-function startGame() {
-    gameState = "playing";
-    score = 0;
-    ticks = 0;
-    isBraking = false;
-    obstacles = [];
-    crosswalks.length = 0;
-    distractions.length = 0;
-    player.x = canvas.width / 2 - 30;
-
-    startBtn.classList.add("hidden");
-    restartBtn.classList.add("hidden");
-
-    gameLoop();
-}
-
-function gameOver(message) {
-    gameState = "gameover";
-    alert(message);
-    restartBtn.classList.remove("hidden");
-}
-
-startBtn.addEventListener("click", startGame);
-restartBtn.addEventListener("click", startGame);
+/* Comença quan assets carregats (o si n'hi ha errors)*/
+const waitForLoad = setInterval(()=>{
+  if(assetsToLoad === 0){
+    clearInterval(waitForLoad);
+    game.start();
+  }
+}, 100);
