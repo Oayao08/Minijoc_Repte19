@@ -544,6 +544,9 @@ const waitForLoad = setInterval(()=>{
     game.start();
   }
 }, 100);
+
+console.log('Cargando assets...');
+
 updateHud();
 showPopup('initial');
 requestAnimationFrame(loop);
