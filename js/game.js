@@ -1,22 +1,27 @@
+console.log('Iniciando juego...');
+
+const ROAD_Y = 380;
+const GRAVITY = 900;
+
 const canvas = document.getElementById('game-canvas');
 const ctx = canvas.getContext('2d');
 
 const ui = {
-  score: document.getElementById('score'),
-  lives: document.getElementById('lives'),
-  speed: document.getElementById('speed-indicator'),
-  popupFlags: document.getElementById('popup-flags'),
-  floatingLayer: document.getElementById('floating-layer'),
-  overlay: document.getElementById('overlay'),
-  popupIcon: document.getElementById('popup-icon'),
-  popupTitle: document.getElementById('popup-title'),
-  popupBody: document.getElementById('popup-body'),
-  popupConfirm: document.getElementById('popup-confirm'),
-  stateScreen: document.getElementById('state-screen'),
-  stateTitle: document.getElementById('state-title'),
-  stateText: document.getElementById('state-text'),
-  restartBtn: document.getElementById('restart-btn'),
-  gameFrame: document.getElementById('game-frame')
+  score: document.getElementById("#score"),
+  lives: document.getElementById("#lives"),
+  speed: document.getElementById("#speed-indicator"),
+  popupFlags: document.getElementById("#popup-flags"),
+  floatingLayer: document.getElementById("#floating-layer"),
+  overlay: document.getElementById("#overlay"),
+  popupIcon: document.getElementById("#popup-icon"),
+  popupTitle: document.getElementById("#popup-title"),
+  popupBody: document.getElementById("#popup-body"),
+  popupConfirm: document.getElementById("#popup-confirm"),
+  stateScreen: document.getElementById("#state-screen"),
+  stateTitle: document.getElementById("#state-title"),
+  stateText: document.getElementById("#state-text"),
+  restartBtn: document.getElementById("#restart-btn"),
+  gameFrame: document.getElementById("#game-frame")
 };
 
 const ASSETS = {
