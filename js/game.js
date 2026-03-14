@@ -1,25 +1,21 @@
-/**
- * game.js — Scooter Safe Run
- * Envuelto en DOMContentLoaded para garantizar que el DOM
- * esté completamente cargado antes de acceder a cualquier elemento.
- */
+console.log("Funciona el DOM i javascript.");
 
 'use strict';
 
 document.addEventListener('DOMContentLoaded', () => {
 
-  console.log('DOM listo. Iniciando juego...');
+  console.log('DOM listo. Iniciant el joc...');
 
-  // ─── CONSTANTES ────────────────────────────────────────────────────────────
+  //CONSTANTS 
   const ROAD_Y  = 380;
   const GRAVITY = 900;
 
-  // ─── CANVAS ────────────────────────────────────────────────────────────────
+  // CANVAS 
   const canvas = document.getElementById('game-canvas');
   if (!canvas) { console.error('No se encontró #game-canvas'); return; }
   const ctx = canvas.getContext('2d');
 
-  // ─── UI ────────────────────────────────────────────────────────────────────
+  // UI (PUNTUACIÓ, VIDES, VELOCITTAT, POPUPS...)
   const ui = {
     score:          document.getElementById('score'),
     lives:          document.getElementById('lives'),
@@ -38,7 +34,7 @@ document.addEventListener('DOMContentLoaded', () => {
     restartBtn:     document.getElementById('restart-btn')
   };
 
-  // ─── ASSETS ────────────────────────────────────────────────────────────────
+  // ASSETS PERSONATGE I OBJECTES 
   const ASSETS = {
     player:     '../assets/sprites/personatge_principal.png',
     mobile:     '../assets/sprites/costat1.png',
@@ -46,7 +42,7 @@ document.addEventListener('DOMContentLoaded', () => {
     pedestrian: '../assets/sprites/personatge1.png'
   };
 
-  // ─── POPUPS EDUCATIVOS ─────────────────────────────────────────────────────
+  //   QUADRES EDUCATIUS 
   const POPUPS = {
     initial: {
       icon:   '',
@@ -74,11 +70,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   };
 
-  // ─── UTILIDADES ────────────────────────────────────────────────────────────
+  // UTILITATS 
   function clamp(v, a, b)        { return Math.max(a, Math.min(b, v)); }
   function randomRange(min, max) { return min + Math.random() * (max - min); }
 
-  // ─── IMÁGENES ──────────────────────────────────────────────────────────────
+  // ─── IMATGES PANTALLA
   const images = {};
 
   function loadImage(key, src) {
@@ -94,7 +90,7 @@ document.addEventListener('DOMContentLoaded', () => {
   loadImage('headphones', ASSETS.headphones);
   loadImage('pedestrian', ASSETS.pedestrian);
 
-  // ─── SONIDO ────────────────────────────────────────────────────────────────
+  //SOROLL DEL JOC 
   function beep(freq = 220, length = 0.07, type = 'triangle') {
     if (!window.AudioContext && !window.webkitAudioContext) return;
     if (!beep._ctx) {
@@ -112,7 +108,7 @@ document.addEventListener('DOMContentLoaded', () => {
     osc.stop(ac.currentTime + length);
   }
 
-  // ─── ESTADO ────────────────────────────────────────────────────────────────
+  //ESTAT 
   function createState() {
     return {
       running:    true,
@@ -154,7 +150,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   let state = createState();
 
-  // ─── HUD ───────────────────────────────────────────────────────────────────
+  // HUD  
   function updateHud() {
     if (ui.score)          ui.score.textContent          = Math.max(0, Math.floor(state.score));
     if (ui.lives)          ui.lives.textContent          = state.lives;
@@ -164,7 +160,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (ui.seenPedestrian) ui.seenPedestrian.textContent = state.popupsSeen.pedestrian ? '✔' : '✖';
   }
 
-  // ─── PARTÍCULAS ────────────────────────────────────────────────────────────
+  // PARTÍCULES 
   function addParticles(x, y, color, amount) {
     color  = color  || '#ffe082';
     amount = amount || 8;
@@ -180,7 +176,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // ─── POPUPS ────────────────────────────────────────────────────────────────
+  //POPUPS 
   function showPopup(kind) {
     if (!POPUPS[kind]) return;
     state.paused      = true;
@@ -203,7 +199,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!state.gameEnded) state.paused = false;
   }
 
-  // ─── SPAWN ─────────────────────────────────────────────────────────────────
+  //SPAWN DELS OBJECTES 
   function spawnItem(type) {
     var lastX = state.objects.length
       ? Math.max.apply(null, state.objects.map(function(o) { return o.x; }))
@@ -233,7 +229,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // ─── COLISIONES ────────────────────────────────────────────────────────────
+  //COLISIONS PERSONATGE 
   function collides(a, b) {
     return !(a.x + a.w < b.x || a.x > b.x + b.w ||
              a.y + a.h < b.y || a.y > b.y + b.h);
@@ -249,7 +245,7 @@ document.addEventListener('DOMContentLoaded', () => {
         showPopup(obj.type);
       }
     }
-    
+
     if (obj.type === 'pedestrian') {
       state.lives -= 1;
       beep(110, 0.13, 'sawtooth');
@@ -264,7 +260,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (state.lives <= 0) endGame(false);
   }
 
-  // ─── FIN DE JUEGO ──────────────────────────────────────────────────────────
+  // FIN DEL JOC 
   function endGame(win) {
     state.running   = false;
     state.paused    = true;
@@ -276,13 +272,13 @@ document.addEventListener('DOMContentLoaded', () => {
       : 'T\'has quedat sense vides amb ' + Math.floor(state.score) + ' punts. Torna-ho a intentar!';
   }
 
-  // ─── ANIMACIÓN ─────────────────────────────────────────────────────────────
+  // ANIMACIÓ 
   function setAnimation() {
     if (!state.player.onGround) { state.player.anim = 'jump'; return; }
     state.player.anim = Math.abs(state.player.vx) < 8 ? 'idle' : 'walk';
   }
 
-  // ─── INPUT ─────────────────────────────────────────────────────────────────
+  // INPUT 
   function processInput(dt) {
     var p = state.player;
     if (state.keys.left)  { p.vx -= p.accel * dt; p.facing = 'left'; }
@@ -303,7 +299,7 @@ document.addEventListener('DOMContentLoaded', () => {
     state.keys.jump = false;
   }
 
-  // ─── UPDATE ────────────────────────────────────────────────────────────────
+  //UPDATE 
   function updatePlayer(dt) {
     processInput(dt);
     var p = state.player;
@@ -377,7 +373,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (state.score >= state.goal) endGame(true);
   }
 
-  // ─── DIBUJO ────────────────────────────────────────────────────────────────
+  //DIBUIX 
   function drawParallax() {
     var farOffset  = (state.worldX * 0.15) % canvas.width;
     var midOffset  = (state.worldX * 0.35) % canvas.width;
@@ -475,7 +471,7 @@ document.addEventListener('DOMContentLoaded', () => {
     ctx.globalAlpha = 1;
   }
 
-  // ─── LOOP PRINCIPAL ────────────────────────────────────────────────────────
+  //LOOP PRINCIPAL 
   function loop(timestamp) {
     if (!state.lastTime) state.lastTime = timestamp;
     var dt = Math.min(0.033, (timestamp - state.lastTime) / 1000);
@@ -498,7 +494,7 @@ document.addEventListener('DOMContentLoaded', () => {
     requestAnimationFrame(loop);
   }
 
-  // ─── TECLADO ───────────────────────────────────────────────────────────────
+  // TECLAT
   window.addEventListener('keydown', function(e) {
     if (e.key === 'ArrowLeft')                  state.keys.left  = true;
     if (e.key === 'ArrowRight')                 state.keys.right = true;
@@ -527,11 +523,11 @@ document.addEventListener('DOMContentLoaded', () => {
     if (e.key === 'ArrowRight') state.keys.right = false;
   });
 
-  // ─── BOTONES ───────────────────────────────────────────────────────────────
+  //BOTONS
   if (ui.popupConfirm) ui.popupConfirm.addEventListener('click', closePopup);
   if (ui.restartBtn)   ui.restartBtn.addEventListener('click', function() { window.location.reload(); });
 
-  // ─── ARRANQUE ──────────────────────────────────────────────────────────────
+  //INICI DEL JOC
   updateHud();
   showPopup('initial');
   requestAnimationFrame(loop);
