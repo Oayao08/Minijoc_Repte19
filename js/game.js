@@ -51,8 +51,8 @@ document.addEventListener('DOMContentLoaded', () => {
     initial: {
       icon:   '',
       title:  '¡Benvingut!',
-      body:   'Mou el patineter amb ← →, salta amb S i para amb ESPAI. Evita distraccions i vianants. Aconsegueix 100 punts!',
-      button: 'ENDAVANT'
+      body:   'Mou el patineter amb ← →, salta amb S i para amb ESPAI. Evita distraccions i vianants. Aconsegueix 300 punts! ',
+      button: 'COMENÇAR'
     },
     mobile: {
       icon:   ASSETS.mobile,
@@ -120,10 +120,10 @@ document.addEventListener('DOMContentLoaded', () => {
       gameEnded:  false,
       elapsed:    0,
       score:      0,
-      goal:       100,
+      goal:       300,
       lives:      3,
       difficulty: 1,
-      worldSpeed: 140,
+      worldSpeed: 140 ,
       worldX:     0,
       lastTime:   null,
       activePopup: null,
@@ -404,7 +404,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     ctx.fillStyle = '#47a37b';
     for (i = -1; i < 10; i++) {
-      ctx.fillRect(i * 120 - nearOffset, ROAD_Y - 6, 100, 8);
+      ctx.fillRect(i * 120 - nearOffset, ROAD_Y - 6, 300, 8);
     }
 
     ctx.fillStyle = '#2f3540';
