@@ -249,6 +249,7 @@ document.addEventListener('DOMContentLoaded', () => {
         showPopup(obj.type);
       }
     }
+    
     if (obj.type === 'pedestrian') {
       state.lives -= 1;
       beep(110, 0.13, 'sawtooth');
