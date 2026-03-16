@@ -53,13 +53,13 @@ document.addEventListener('DOMContentLoaded', () => {
     mobile: {
       icon:   ASSETS.mobile,
       title:  'Mòbil a la via!',
-      body:   'Mirar el mòbil mentre condueixes multiplica per 4 el risc de tenir accidents. 5 segons de distracció a km/h són com recórrer un camp de futbol a cegues.',
+      body:   'Mirar el mòbil multiplica el risc d’accidents.',
       button: 'Guardar mòbil'
     },
     headphones: {
       icon:   ASSETS.headphones,
       title:  'Auriculars!',
-      body:   'Amb auriculars no pots sentir cotxes, bicis o sirenes. En un patinet, cada so és crucial per a la teva seguretat.',
+      body:   'Amb auriculars no pots sentir cotxes, bicis o sirenes.',
       button: 'Treure auriculars'
     },
     pedestrian: {
