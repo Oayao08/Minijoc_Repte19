@@ -46,27 +46,27 @@ document.addEventListener('DOMContentLoaded', () => {
   const POPUPS = {
     initial: {
       icon:   '',
-      title:  '¡Benvingut!',
+      title:  'BENVINGUT!',
       body:   'Mou el patineter amb ← →, salta amb S i para amb ESPAI. Evita distraccions i vianants. Aconsegueix 300 punts! ',
-      button: 'COMENÇAR'
+      button: 'COMENÇAR ARA'
     },
     mobile: {
       icon:   ASSETS.mobile,
-      title:  '📱 Mòbil a la via!',
-      body:   'Usar el mòbil mentre circules amb patinet és molt perillós i il·legal. Perds concentració i temps de reacció.',
-      button: 'ENTÈS'
+      title:  'Mòbil a la via!',
+      body:   'Mirar el mòbil mentre condueixes multiplica per 4 el risc de tenir accidents. 5 segons de distracció a km/h són com recórrer un camp de futbol a cegues.',
+      button: 'Guardar mòbil'
     },
     headphones: {
       icon:   ASSETS.headphones,
-      title:  '🎧 Auriculars!',
-      body:   'Portar auriculars impedeix sentir alertes del trànsit: botzines, frenades i sirenes. Circula sense ells.',
-      button: 'ENTÈS'
+      title:  'Auriculars!',
+      body:   'Amb auriculars no pots sentir cotxes, bicis o sirenes. En un patinet, cada so és crucial per a la teva seguretat.',
+      button: 'Treure auriculars'
     },
     pedestrian: {
       icon:   ASSETS.pedestrian,
-      title:  '🚶 Vianant!',
-      body:   'Els vianants tenen prioritat. Redueix velocitat i para si cal. La seguretat és primer.',
-      button: 'ENTÈS'
+      title:  'Vianants al camí!',
+      body:   'Els vianants són màxima prioritat. Frena a temps i mantingues la vista en el camí.',
+      button: 'Anar amb més compte'
     }
   };
 
@@ -266,7 +266,7 @@ document.addEventListener('DOMContentLoaded', () => {
     state.paused    = true;
     state.gameEnded = true;
     if (ui.endScreen) ui.endScreen.classList.remove('hidden');
-    if (ui.endTitle)  ui.endTitle.textContent = win ? '🏆 Has guanyat!' : '💥 Game Over';
+    if (ui.endTitle)  ui.endTitle.textContent = win ? '🏆 Has guanyat!' : 'Has perdut...';
     if (ui.endBody)   ui.endBody.textContent  = win
       ? 'Excel·lent! Has aconseguit ' + Math.floor(state.score) + ' punts mantenint l\'atenció a la via.'
       : 'T\'has quedat sense vides amb ' + Math.floor(state.score) + ' punts. Torna-ho a intentar!';
@@ -511,7 +511,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (state.paused) {
         if (ui.overlay)      ui.overlay.classList.remove('hidden');
         if (ui.popupTitle)   ui.popupTitle.textContent   = 'PAUSA';
-        if (ui.popupBody)    ui.popupBody.textContent    = 'El joc està en pausa. Prem ENTESOS per continuar.';
+        if (ui.popupBody)    ui.popupBody.textContent    = 'El joc està en pausa. Prem el botó per continuar.';
         if (ui.popupConfirm) ui.popupConfirm.textContent = 'ENTESOS';
         state.activePopup = 'pause';
       }
