@@ -4,56 +4,89 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ves amb compte! - Repte #19</title>
-    <link rel="stylesheet" href="css/style.css">
+
+    <!-- Font -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Hind:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Hind:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="css/style.css">
   </head>
 
   <body>
 
-  <header>
-    <nav class="navbar">
-      <div class="logo">
-        <img src="logos/Logo-RACC_JiM.jpeg" alt="Logo del RACC Joves i Mobilitat">
-        <div class="container-nav">
-          <h1 class="title">Ves amb compte!</h1>
+    <!-- NAVBAR -->
+    <header class="header">
+      <nav class="navbar container">
+        <div class="logo">
+          <img src="logos/Logo-RACC_JiM.jpeg" alt="Logo">
+          <h1>Ves amb compte!</h1>
+        </div>
+
+        <ul class="menu">
           <li><a href="index.html">Inici</a></li>
           <li><a href="comhohefet.html">Com ho he fet?</a></li>
+        </ul>
+      </nav>
+    </header>
+
+    <!-- HERO -->
+    <main>
+
+      <section class="hero">
+        <div class="hero-content">
+          <h2>Posa a prova els teus coneixements</h2>
+          <p>
+            Descobreix els riscos de la mobilitat i aprèn a circular de forma segura 
+            amb aquest repte interactiu.
+          </p>
+
+          <a href="minijoc/joc.html" class="btn-primary">
+            Comença el repte
+          </a>
         </div>
-      </div>      
-    </nav>
-  </header>
+      </section>
 
-  <main class="hero">
-    <section>
-      <h2>Què saps dels perills de la mobilitat?</h2>
-      <p>Posa a prova els teus coneixements amb aquest repte sobre seguretat viària i mobilitat sostenible!</p>
-      <a href="minijoc/joc.html" class="btn">Comença el repte!</a>
-    </section>
+      <!-- INFO CARDS -->
+      <section class="info container">
 
-    <section>
-      <h2>Objectius</h2>
-      <p>...</p>
-      
-      <h2>Propósit</h2>
-      <p>...</p>
+        <div class="card">
+          <h3>🎯 Objectius</h3>
+          <p>
+            Conscienciar sobre la seguretat viària i fomentar hàbits responsables 
+            en la mobilitat diària.
+          </p>
+        </div>
 
-      <a href="comhohefet.html">
-        <button>Veure el procés complet</button>
-      </a>
+        <div class="card">
+          <h3>Propòsit</h3>
+          <p>
+            Promoure una mobilitat sostenible i reduir els riscos associats als desplaçaments. 
+          </p>
+        </div>
 
-    </section>
-  </main>
+        <div class="card">
+          <h3>Desenvolupament</h3>
+          <p>
+            Descobreix com s'ha creat aquest projecte pas a pas al següent apartat.
+          </p>
+          <a href="comhohefet.html" class="btn-secondary">Veure més</a>
+        </div>
 
-  <footer>
-    <p>&copy; Omar Ayaou - 2026 · Llicència Creative Commons</p>
-    <div class="logos">
-      <img src="logos/idbh.jpg" alt="Generalitat de Catalunya">
-      <img src="logos/Logo-RACC_JiM.jpeg" alt="RACC Joves i Mobilitat">
-      <img src="logos/sctlogo.jpg" alt="Servei Català de Trànsit">
-    </div>
-  </footer>
+      </section>
 
+    </main>
+
+    <!--Peu de pàgina -->
+    <footer class="footer">
+      <p>&copy; Omar Ayaou - 2026 · Llicència Creative Commons</p>
+
+      <div class="footer-logos">
+        <img src="logos/idbh.jpg" alt="Generalitat">
+        <img src="logos/Logo-RACC_JiM.jpeg" alt="RACC">
+        <img src="logos/sctlogo.jpg" alt="Trànsit">
+      </div>
+    </footer>
   </body>
 </html>
