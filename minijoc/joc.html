@@ -1,72 +1,47 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="ca">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Scooter Safe Run | Minijuego 2D</title>
-    <meta name="description" content="Juego educativo 2D de seguridad vial en patinete con distracciones y peatones.">
-    <link rel="stylesheet" href="../css/style-joc.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PatinBot – Seguretat en Patinet Elèctric</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style-joc.css">
 </head>
 <body>
-    <header class="game-header">
-        <h1>Ves amb compte!</h1>
-        <p>Respecta les senyals, cuida el teu entorn.</p>
-    </header>
 
-    <main id="game-shell">
-        <canvas id="game-canvas" width="1100" height="620" aria-label="Juego 2D de desplazamiento lateral"></canvas>
+  <!-- Capçalera amb logos institucionals -->
+  <header class="gh">
+    <img src="../logos/Logo-RACC_JiM.jpeg" alt="RACC" class="logo">
+    <div class="gh-title">
+      <span class="gh-top">Joc educatiu de seguretat vial</span>
+      <span class="gh-main">PatinBot</span>
+    </div>
+    <img src="../logos/sctlogo.jpg" alt="SCT" class="logo">
+  </header>
 
-        <section id="hud" aria-live="polite">
-            <div class="hud-box hud-left">
-                <span>Puntos: <strong id="score">0</strong> / 300</span>
-                <span id="speed-indicator">Velocidad: 0</span>
-            </div>
-            <div class="hud-box hud-right">
-                <span>Vidas: <strong id="lives">3</strong></span>
-                <span class="seen-flags">Info: <em id="seen-mobile">✖</em> <em id="seen-headphones">✖</em> <em id="seen-pedestrian">✖</em></span>
-            </div>
-        </section>
+  <!-- Joc principal -->
+  <main>
+    <div id="wrap">
+      <canvas id="c" width="480" height="680"></canvas>
+    </div>
+    <p id="hint">
+      ← → CARRIL &nbsp;·&nbsp; ↑ ACCELERA &nbsp;·&nbsp; ↓ FRENA &nbsp;·&nbsp;
+      <span class="hk">C</span> CANCEL·LA &nbsp;·&nbsp;
+      <span class="hk">V</span> ACCEPTA &nbsp;·&nbsp;
+      <span class="hk">ENTER</span> CONTINUAR
+    </p>
+  </main>
 
-        <section id="overlay" class="overlay hidden" aria-modal="true" role="dialog">
-            <article class="popup-card" id="popup-card">
-                <img id="popup-icon" class="popup-icon" alt="icono informativo">
-                <h2 id="popup-title"></h2>
-                <div class="popup-content">
-                    <p id="popup-body"></p>
-                </div>
-                <button id="popup-button" type="button">ENTENDIDO</button>
-            </article>
-        </section>
+  <!-- Peu de pàgina -->
+  <footer class="gf">
+    <img src="../logos/idbh.jpg" alt="IDBH" class="logo-sm">
+    <span class="gf-text">Projecte d'educació vial · Seguretat en patinet elèctric</span>
+    <img src="../logos/Logo-RACC_JiM.jpeg" alt="RACC" class="logo-sm">
+  </footer>
 
-        <section id="end-screen" class="overlay hidden" aria-modal="true" role="dialog">
-            <article class="popup-card end-card">
-                <h2 id="end-title">FIN</h2>
-                <div class="popup-content">
-                    <p id="end-body"></p>
-                </div>
-               
-                <button id="restart-btn" type="button">REINICIAR</button>
-            </article>
-        </section>
-    </main>
+  <!-- Motor del joc -->
+  <script src="../js/game.js"></script>
 
-    <aside id="controls-panel">
-        <h2>Controles</h2>
-        <ul>
-            <li>← / → moverse</li>
-            <li>ESPACIO parar (idle inmediato)</li>
-            <li>S saltar</li>
-            <li>P pausar/reanudar</li>
-        </ul>
-    </aside>
-    <footer>
-        <p>&copy; Omar Ayaou - 2026 · Llicència Creative Commons</p>
-        <div class="logos">
-            <img src="../logos/idbh.jpg" alt="Generalitat de Catalunya">
-            <img src="../logos/Logo-RACC_JiM.jpeg" alt="RACC Joves i Mobilitat">
-            <img src="../logos/sctlogo.jpg" alt="Servei Català de Trànsit">
-        </div>
-    </footer>
-    <script src="../js/game.js"></script>
 </body>
 </html>
