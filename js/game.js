@@ -1,16 +1,4 @@
-/* ╔══════════════════════════════════════════════════════════════════╗
-   ║  PATINBOT v3  ·  js/game.js                                     ║
-   ║  Joc educatiu de seguretat en patinet elèctric                  ║
-   ║  Idioma: Català  |  Perspectiva: Primera persona                ║
-   ║  Importat per: mini joc/joc.html                                ║
-   ╚══════════════════════════════════════════════════════════════════╝ */
 'use strict';
-
-/* ═══════════════════════════════════════════════════════════════════
-   § 1  RUTES D'ACTIUS
-   Totes les rutes són relatives a mini joc/joc.html.
-   Modifica IMG_PATHS i SFX_PATHS per apuntar als teus fitxers.
-   ═══════════════════════════════════════════════════════════════════ */
 const IMG_PATHS = {
   ped1:   '../assets/sprites/personatge1.png',
   ped2:   '../assets/sprites/personatge2.png',
@@ -29,28 +17,24 @@ const SFX_PATHS = {
   lose:     '../assets/effects/perdre.mp3',
 };
 
-/* ═══════════════════════════════════════════════════════════════════
-   § 2  CANVAS I CONSTANTS DE PERSPECTIVA
-   ═══════════════════════════════════════════════════════════════════ */
+/* CANVAS I CONSTANTS DE PERSPECTIVA*/
 const cv  = document.getElementById('c');
 const ctx = cv.getContext('2d');
 ctx.imageSmoothingEnabled = false;
 
 const W = 480, H = 680;
 
-// Horitzó elevat → carretera molt visible (72% de la pantalla)
+// Horitzó elevat → carretera molt visible (74% de la pantalla)
 const HRZ   = H * 0.26;   // línia d'horitzó
-const RHW_B = W * 0.50;   // semi-amplada carretera al fons
-const RHW_T = W * 0.078;  // semi-amplada carretera a l'horitzó
-const HB_Y  = H - 96;     // base del manillar
+const RHW_B = W * 0.70;   // semi-amplada carretera al fons
+const RHW_T = W * 0.080;  // semi-amplada carretera a l'horitzó
+const HB_Y  = H - 93;     // base del manillar
 
 // Factor global d'escala dels obstacles (>1 = més grans)
 // Augmenta per fer-los encara més visibles
 const OBS_SC = 1.7;
 
-/* ═══════════════════════════════════════════════════════════════════
-   § 3  PALETA DE COLORS
-   ═══════════════════════════════════════════════════════════════════ */
+/*PALETA DE COLORS*/
 const P = {
   skyT:'#0a1628', skyB:'#1555a0',
   road:'#52525e', roadD:'#3e3e4a', roadE:'#6a6a78',
@@ -60,10 +44,8 @@ const P = {
   wh:'#ffffff',   bk:'#000000',   skin:'#f0c898',
 };
 
-/* ═══════════════════════════════════════════════════════════════════
-   § 4  GEOMETRIA DE PERSPECTIVA
-   vpX = punt de fuga X, s'anima per simular canvi de carril
-   ═══════════════════════════════════════════════════════════════════ */
+/* GEOMETRIA DE PERSPECTIVA*/ 
+/* vpX = punt de fuga X, s'anima per simular canvi de carril*/
 let vpX = W / 2;
 
 const rL    = d => vpX - (RHW_T + (RHW_B - RHW_T) * d);
@@ -73,9 +55,7 @@ const dSc   = d => (0.10 + d * 1.10) * OBS_SC;  // escala obstàcle a profundita
 const lX    = (ln, d) => vpX + ln * 0.36 * (rR(d) - rL(d));
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 
-/* ═══════════════════════════════════════════════════════════════════
-   § 5  ESTAT DEL JOC
-   ═══════════════════════════════════════════════════════════════════ */
+/* ESTAT DEL JOC*/
 const GS = {
   MENU:'MENU', TUTO:'TUTO', CD:'CD',
   PLAY:'PLAY', PHASE_IN:'PHASE_IN',
@@ -103,11 +83,7 @@ let popTimer=0, nextPop=99999;
 // Fites de distància ja celebrades
 let milestones = new Set();
 
-/* ═══════════════════════════════════════════════════════════════════
-   § 6  SISTEMA DE FASES
-   Cada fase introdueix UNA mecànica nova, amb pantalla explicativa.
-   Això evita saturar el jugador amb massa estímuls alhora.
-   ═══════════════════════════════════════════════════════════════════ */
+/* SISTEMA DE FASES*/
 let phase = 0;           // fase actual (0 = tutorial, 1..4 = joc)
 let phaseTimer = 0;      // temps acumulat dins la fase (ms)
 let phaseInTimer = 0;    // temps restant de la pantalla d'entrada (ms)
@@ -222,10 +198,8 @@ function checkPhaseUp(dt) {
   }
 }
 
-/* ═══════════════════════════════════════════════════════════════════
-   § 7  SISTEMA D'ÀUDIO
-   Carrega els fitxers mp3 i exposa play/loop/stop.
-   ═══════════════════════════════════════════════════════════════════ */
+/* SISTEMA D'ÀUDIO
+   Carrega els fitxers mp3 i exposa play/loop/stop. */
 const SFX = {};
 let bgMusic = null;
 
@@ -264,11 +238,7 @@ function playSfx(key, vol = 0.7) {
   } catch(e) {}
 }
 
-/* ═══════════════════════════════════════════════════════════════════
-   § 8  IMATGES EXTERNES
-   Les imatges es carreguen de IMG_PATHS. Si fallen, es fa servir
-   el pixel art de fallback (veure § 10).
-   ═══════════════════════════════════════════════════════════════════ */
+/* IMATGES EXTERNES */
 const IMGS = {};
 
 function loadImages(cb) {
@@ -289,17 +259,15 @@ function loadImages(cb) {
 function spr(key, cx, cy, s, fallback) {
   const img = IMGS[key];
   if (img) {
-    const w = img.naturalWidth  * s * 0.88;
-    const h = img.naturalHeight * s * 0.88;
+    const w = img.naturalWidth  * s * 0.20;
+    const h = img.naturalHeight * s * 0.20;
     ctx.drawImage(img, (cx - w / 2) | 0, (cy - h) | 0, w | 0, h | 0);
   } else {
     fallback(cx, cy, s);
   }
 }
 
-/* ═══════════════════════════════════════════════════════════════════
-   § 9  PRIMITIVES DE DIBUIX
-   ═══════════════════════════════════════════════════════════════════ */
+/*PRIMITIVES DE DIBUIX*/
 const pr = (x, y, w, h, c) => {
   ctx.fillStyle = c;
   ctx.fillRect(x | 0, y | 0, Math.max(1, w | 0), Math.max(1, h | 0));
@@ -324,11 +292,9 @@ function obsGlow(cx, cy, w, h, col) {
   ctx.shadowBlur  = 0;
 }
 
-/* ═══════════════════════════════════════════════════════════════════
-   § 10  SPRITES PIXEL ART D'OBSTACLES
+/* SPRITES PIXEL ART D'OBSTACLES
    Mida base ~70×110 px per cotxes, ~80px per persones.
-   S'escalen per dSc(d) * OBS_SC → obstacles grans i molt visibles.
-   ═══════════════════════════════════════════════════════════════════ */
+   S'escalen per dSc(d) * OBS_SC → obstacles grans i molt visibles.*/
 
 /* Cotxe genèric (cx,cy = cantonada inferior central) */
 function _car(cx, cy, s, body, cab, stripe) {
@@ -455,9 +421,7 @@ const OBS_DEF = [
   { id:'scooter',   dmg:20,pts:12,err:'collision',drawFn:drawObsScooter },
 ];
 
-/* ═══════════════════════════════════════════════════════════════════
-   § 11  DADES EDUCATIVES (gràfic d'accidents)
-   ═══════════════════════════════════════════════════════════════════ */
+/* DADES EDUCATIVES (gràfic d'accidents)*/
 const CHART = [
   { label:'Mòbil/Distrac.', pct:34, col:'#ff4455' },
   { label:'Velocitat exc.', pct:27, col:'#ff8822' },
@@ -509,9 +473,7 @@ const ERR_DEF = {
   },
 };
 
-/* ═══════════════════════════════════════════════════════════════════
-   § 12  DISTRACCIONS (popups C/V)
-   ═══════════════════════════════════════════════════════════════════ */
+/* DISTRACCIONS (popups C/V)*/
 const POPS = [
   {
     icon:'📱', title:'NOTIFICACIÓ!',
@@ -540,24 +502,30 @@ const POPS = [
   {
     icon:'💬', title:'WHATSAPP!',
     lines:['5 missatges nous del grup.','Els llegeixo ara?'],
-    cancel:'Esperen', accept:'Llegeixo ara',
+    cancel:'Esperar', accept:'Llegir ara',
     bon:'✓ Els missatges sempre esperen!',
     pen:'✗ Mai llegeixis missatges en marxa!',
-    edu:'Llegir un missatge multiplica per 3\nel teu temps de reacció.',
+    edu:'Llegir un missatge redueix per 3\nel teu temps de reacció.',
+  },
+  {
+    icon:'💬', title:'INSTAGRAM!',
+    lines:['Una persona ha donat like al teu post.','Ho reviso?'],
+    cancel:'Esperar', accept:'Mirar ara',
+    bon:'✓ Els missatges sempre esperen!',
+    pen:'✗ Mai llegeixis missatges en marxa!',
+    edu:'Llegir un missatge redueix molt teu temps de reacció.',
   },
   {
     icon:'🎧', title:'SPOTIFY!',
     lines:['La teva playlist t\'espera.','Canvies la cançó ara?'],
     cancel:'Segueixo igual', accept:'Canvio ara',
     bon:'✓ Tria la música ABANS de sortir.',
-    pen:'✗ La música s\'ha de triar abans!',
-    edu:'El millor moment per configurar\nla música és quan el patinet para.',
+    pen:'✗ No escoltar res mentre condueixes!',
+    edu:'El millor és evitar utilitzar auriculars',
   },
 ];
 
-/* ═══════════════════════════════════════════════════════════════════
-   § 13  ENTORN (cel, edificis, carretera)
-   ═══════════════════════════════════════════════════════════════════ */
+/* ENTORN (cel, edificis, carretera)*/
 const BL=[
   {x:-4, w:54,h:92, c:'#8b1f1f',wc:'#ffe066'},
   {x:48, w:42,h:68, c:'#1a3d6b',wc:'#99ddff'},
@@ -635,9 +603,7 @@ function drawLaneLines() {
   });
 }
 
-/* ═══════════════════════════════════════════════════════════════════
-   § 14  PAS DE ZEBRA
-   ═══════════════════════════════════════════════════════════════════ */
+/* PAS DE ZEBRA*/
 function drawZebraCrossing(zb) {
   const d=zb.depth;
   const y0=rY(d-.025), y1=rY(d+.025);
@@ -667,9 +633,7 @@ function drawZebraCrossing(zb) {
   }
 }
 
-/* ═══════════════════════════════════════════════════════════════════
-   § 15  SEMÀFOR
-   ═══════════════════════════════════════════════════════════════════ */
+/* SEMÀFOR*/
 function drawTrafficLight(tl) {
   const s=dSc(tl.depth)/OBS_SC;
   const bx=rR(tl.depth)+12*s, by=rY(tl.depth);
@@ -700,10 +664,8 @@ function drawTrafficLight(tl) {
   }
 }
 
-/* ═══════════════════════════════════════════════════════════════════
-   § 16  MANILLAR I MANS (primer pla, primera persona)
-   handSway = desplaçament lateral per animar el gir del manillar
-   ═══════════════════════════════════════════════════════════════════ */
+/* MANILLAR I MANS (primera persona)
+   handSway = desplaçament lateral per animar el gir del manillar*/
 function drawHandlebars(handSway) {
   const cx = (W / 2 + handSway) | 0;
   const by = HB_Y;
@@ -745,9 +707,7 @@ function drawHand(cx,cy,right) {
   pr(cx+fl*14,cy+2,10,14,P.skin);pr(cx+fl*14,cy+2,10,3,'#f5d9b0');
 }
 
-/* ═══════════════════════════════════════════════════════════════════
-   § 17  HUD (Barra d'energia, punts, velocitat, avís de perill)
-   ═══════════════════════════════════════════════════════════════════ */
+/* HUD (Barra d'energia, punts, velocitat, avís de perill)*/
 function drawHUD() {
   pr(0,0,W,60,'rgba(0,0,0,.92)');pr(0,58,W,2,P.or);
 
@@ -824,9 +784,7 @@ function laneHasDanger(ln) {
   return obs.some(o => o.lane === ln && o.depth > 0.38 && o.depth < 0.72);
 }
 
-/* ═══════════════════════════════════════════════════════════════════
-   § 18  TUTORIAL (capa informativa durant la Fase 0)
-   ═══════════════════════════════════════════════════════════════════ */
+/*TUTORIAL (capa informativa durant la Fase 0)*/
 let tutoStep = 0;  // 0=accelerar, 1=frenar, 2=canviar carril, 3=completat
 let tutoCheck = { up:false, down:false, lane:false };
 
@@ -855,10 +813,8 @@ function drawTutorial() {
   }
 }
 
-/* ═══════════════════════════════════════════════════════════════════
-   § 19  PANTALLA D'INTRO DE FASE
-   Apareix 5 s en entrar en cada nova fase. El joc s'atura.
-   ═══════════════════════════════════════════════════════════════════ */
+/* PANTALLA D'INTRO DE FASE
+   Apareix 5 s en entrar en cada nova fase. El joc s'atura.*/
 function drawPhaseIntro() {
   const ph = curPhase();
   phaseInTimer -= 16;
@@ -900,9 +856,7 @@ function drawPhaseIntro() {
   ctx.fillText('Comença en...',(W/2)|0,(py+ph_h-28)|0);
 }
 
-/* ═══════════════════════════════════════════════════════════════════
-   § 20  POPUP DE DISTRACCIÓ (C/V)
-   ═══════════════════════════════════════════════════════════════════ */
+/*   POPUP DE DISTRACCIÓ (C/V)*/
 function drawDistrPopup() {
   if (!distrPopup) return;
   distrAnimT=Math.min(1,distrAnimT+.09);
@@ -938,10 +892,8 @@ function drawDistrPopup() {
   ctx.restore();ctx.globalAlpha=1;
 }
 
-/* ═══════════════════════════════════════════════════════════════════
-   § 21  POPUP D'ERROR AMB GRÀFIC DIDÀCTIC ANIMAT
-   Mostra les causes d'accidents per reforçar l'aprenentatge.
-   ═══════════════════════════════════════════════════════════════════ */
+/* POPUP D'ERROR AMB GRÀFIC DIDÀCTIC ANIMAT
+   Mostra les causes d'accidents per reforçar l'aprenentatge.*/
 function drawErrPopup() {
   if (!errPopup) return;
   errAnimT =Math.min(1,errAnimT +.07);
@@ -1004,9 +956,7 @@ function hexRgb(hex){
   return `${r},${g},${b}`;
 }
 
-/* ═══════════════════════════════════════════════════════════════════
-   § 22  TEXTOS FLOTANTS (punts, fites)
-   ═══════════════════════════════════════════════════════════════════ */
+/* TEXTOS FLOTANTS (punts, fites)*/
 const floatFn = [];  // funcions de dibuix de floats actius
 
 function drawFloats() {
@@ -1034,9 +984,7 @@ function checkMilestones(){
   });
 }
 
-/* ═══════════════════════════════════════════════════════════════════
-   § 23  PANTALLES DE MENÚ, COMPTE ENRERE I GAME OVER
-   ═══════════════════════════════════════════════════════════════════ */
+/*     PANTALLES DE MENÚ, COMPTE ENRERE I GAME OVER */
 function drawMenu() {
   drawSky();drawBuildings();drawRoadSurface();drawLaneLines();drawHandlebars(0);
   ctx.fillStyle='rgba(0,0,18,.72)';ctx.fillRect(0,0,W,H);
@@ -1046,7 +994,7 @@ function drawMenu() {
   ctx.shadowColor=P.or;ctx.shadowBlur=22*g;
   pr(W/2-204,42,408,100,P.or);pr(W/2-200,46,400,92,'#000016');ctx.shadowBlur=0;
   ctx.font="22px 'Press Start 2P'";ctx.fillStyle=P.or;ctx.textAlign='center';ctx.textBaseline='middle';
-  ctx.shadowColor=P.or;ctx.shadowBlur=18*g;ctx.fillText('PATINBOT',W/2,82);ctx.shadowBlur=0;
+  ctx.shadowColor=P.or;ctx.shadowBlur=18*g;ctx.fillText('Ves amb compte!',W/2,82);ctx.shadowBlur=0;
   ctx.font="7px 'Press Start 2P'";ctx.fillStyle=P.yw;ctx.fillText('Juga amb Seguretat al Carrer!',W/2,112);
   // Panell de controls
   pr(W/2-184,155,368,278,'rgba(0,0,42,.95)');pr(W/2-184,155,368,4,P.or);
@@ -1134,9 +1082,7 @@ function drawGameOver() {
   ctx.font="6px 'Press Start 2P'";ctx.fillStyle='#777';ctx.fillText('[ENTER]',W/2,(H/2+172)|0);
 }
 
-/* ═══════════════════════════════════════════════════════════════════
-   § 24  LÒGICA D'ACTUALITZACIÓ
-   ═══════════════════════════════════════════════════════════════════ */
+/* LÒGICA D'ACTUALITZACIÓ */
 function updatePlayer(dt) {
   if(keys['ArrowUp'])   pl.speed=Math.min(5.0,pl.speed+dt*.0018);
   else if(keys['ArrowDown'])pl.speed=Math.max(.05,pl.speed-dt*.0035);
@@ -1233,9 +1179,7 @@ function updatePopTimer(dt) {
   if(popTimer>=nextPop){spawnPop();popTimer=0;nextPop=9000+Math.random()*5000;}
 }
 
-/* ═══════════════════════════════════════════════════════════════════
-   § 25  SPAWN D'ELEMENTS
-   ═══════════════════════════════════════════════════════════════════ */
+/*SPAWN D'ELEMENTS*/
 function spawnObs() {
   const ph=curPhase();
   if(ph.obsTypes.length===0) return;
@@ -1262,9 +1206,7 @@ function spawnPop() {
   distrPopup={...POPS[Math.floor(Math.random()*POPS.length)]};distrAnimT=0;st=GS.POPUP;
 }
 
-/* ═══════════════════════════════════════════════════════════════════
-   § 26  GESTIÓ DE POPUPS D'ERROR I DISTRACCIÓ
-   ═══════════════════════════════════════════════════════════════════ */
+/*GESTIÓ DE POPUPS D'ERROR I DISTRACCIÓ*/
 function openErrPopup(type){errPopup=ERR_DEF[type];errAnimT=0;errChartT=0;st=GS.ERROR;}
 
 function resolveDistr(accept) {
@@ -1286,9 +1228,10 @@ function resolveErr() {errPopup=null; if(health>0)st=GS.PLAY; else triggerGO();}
 
 function triggerGO() {st=GS.GO;stopBg();playSfx('lose');}
 
-/* ═══════════════════════════════════════════════════════════════════
-   § 27  RESET I INICI
-   ═══════════════════════════════════════════════════════════════════ */
+/* 
+  RESET I INICI
+  */
+
 function resetGame() {
   st=GS.CD;cdTimer=3500;
   score=0;health=100;dist=0;gTime=0;phase=0;phaseTimer=0;phaseInTimer=0;
@@ -1303,9 +1246,7 @@ function resetGame() {
   playBg();
 }
 
-/* ═══════════════════════════════════════════════════════════════════
-   § 28  INPUT
-   ═══════════════════════════════════════════════════════════════════ */
+/* INPUT*/
 const keys = {};
 
 document.addEventListener('keydown', e => {
@@ -1333,9 +1274,10 @@ document.addEventListener('keydown', e => {
 });
 document.addEventListener('keyup', e => { keys[e.key] = false; });
 
-/* ═══════════════════════════════════════════════════════════════════
-   § 29  RENDERITZAT D'ESCENA
-   ═══════════════════════════════════════════════════════════════════ */
+/* 
+RENDERITZAT D'ESCENA
+*/
+
 function renderScene() {
   const handSway = -(pl.lane - pl.laneVis) * 30;
   drawSky();
