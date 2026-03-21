@@ -8,6 +8,7 @@
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Hind:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+        <link rel="stylesheet" href="css/style.css">
     </head>
     <body>
         <nav>
@@ -16,10 +17,211 @@
             <a href="comhohefet.html" target="_blank">Com ho he fet?</a>
             <a href="minijoc/joc.html" target="_blank">Jugar ara!</a>
         </nav>
-        <main>
-            
-        </main>
-            <footer>
+        
+        <header>
+            <h1>Com ho hem fet el joc</h1>
+            <p class="subtitol">
+                Aquesta pàgina explica, de manera clara i ordenada, com està construït el joc:
+                des de l’estructura HTML fins a la lògica JavaScript, passant per les fases,
+                els obstacles i els missatges educatius.
+            </p>
+            <div class="etiquetes">
+                <span class="etiqueta">HTML estructurat</span>
+                <span class="etiqueta">Canvas</span>
+                <span class="etiqueta">JavaScript</span>
+                <span class="etiqueta">Fases del joc</span>
+                <span class="etiqueta">Educació vial</span>
+            </div>
+        </header>
+
+        <section>
+            <h2>1. Funcionament general del joc</h2>
+            <p>
+                El joc està pensat com una experiència interactiva en 2D dins d’un <span class="marca">canvas</span>.
+                El jugador controla un patinet o vehicle similar i ha d’avançar per una carretera amb perspectiva,
+                esquivant obstacles i respectant diferents normes de circulació.
+            </p>
+
+            <div class="graella">
+                <div class="targeta">
+                <strong>Menú inicial</strong>
+                El joc comença amb una pantalla principal on es mostren les instruccions bàsiques i el botó per començar.
+                </div>
+                <div class="targeta">
+                <strong>Compte enrere</strong>
+                Abans de començar, apareix un 3, 2, 1 i un missatge d’inici perquè el jugador es prepari.
+                </div>
+                <div class="targeta">
+                <strong>Tutorial</strong>
+                A la primera fase es practiquen els controls: accelerar, frenar i canviar de carril.
+                </div>
+                <div class="targeta">
+                <strong>Fases progressives</strong>
+                El joc afegeix dificultat a poc a poc: cotxes, semàfors, vianants, passos de zebra i distraccions digitals.
+                </div>
+            </div>
+
+            <p class="nota">
+                L’objectiu no és només puntuar, sinó aprendre a conduir amb seguretat i prendre decisions correctes en cada situació.
+            </p>
+        </section>
+
+        <section>
+            <h2>2. Estructura de l’HTML utilitzada</h2>
+            <p>
+                L’HTML està pensat per ser simple i net. La idea principal és tenir una pàgina amb un títol,
+                diverses seccions explicatives i un espai per mostrar el codi de manera ordenada.
+            </p>
+
+            <h3>Exemple bàsic d’HTML comentat</h3>
+            <div class="codi">
+        <pre><code>&lt;main class="contenidor"&gt;
+        &lt;header&gt;
+            &lt;h1&gt;Com ho hem fet el joc&lt;/h1&gt;
+            &lt;p&gt;Explicació clara del projecte.&lt;/p&gt;
+        &lt;/header&gt;
+
+        &lt;section&gt;
+            &lt;h2&gt;Funcionament general&lt;/h2&gt;
+            &lt;p&gt;Aquí es descriu com va el joc.&lt;/p&gt;
+        &lt;/section&gt;
+        &lt;/main&gt;</code></pre>
+            </div>
+
+            <p>
+                Aquesta estructura ajuda a separar el contingut en blocs fàcils de llegir i de revisar.
+                A més, el títol principal i les seccions permeten entendre ràpidament de què tracta cada part.
+            </p>
+        </section>
+
+    <section>
+      <h2>3. Funcionament del codi JavaScript</h2>
+      <p>
+        El JavaScript és la part que dóna vida al joc. Gestiona l’estat del joc, els controls, les fases,
+        els obstacles, els àudios i el dibuix constant de la pantalla.
+      </p>
+
+      <div class="graella">
+        <div class="targeta">
+          <strong>Estat del joc</strong>
+          El codi defineix si estem al menú, al tutorial, a una fase concreta o a la pantalla de final de partida.
+        </div>
+        <div class="targeta">
+          <strong>Sistema de fases</strong>
+          Cada fase introdueix un tipus de repte diferent i canvia els objectius del jugador.
+        </div>
+        <div class="targeta">
+          <strong>Renderitzat</strong>
+          A cada fotograma es dibuixen el fons, la carretera, els obstacles i la interfície.
+        </div>
+        <div class="targeta">
+          <strong>Interacció</strong>
+          Les tecles controlen el moviment, la velocitat i les decisions davant dels popups.
+        </div>
+      </div>
+
+      <h3>Exemple comentat de JavaScript: canvi de fases</h3>
+      <div class="codi">
+<pre><code>// Si encara no estem a l'última fase...
+function checkPhaseUp(dt) {
+  if (phase &gt;= PHASES.length - 1) return;
+
+  // Sumem el temps passat
+  phaseTimer += dt;
+
+  // Quan la fase dura prou, pugem a la següent
+  if (phaseTimer &gt;= curPhase().duration) {
+    phase++;
+    phaseTimer = 0;
+    phaseInTimer = 5000;   // Mostra la pantalla d'introducció
+    st = GS.PHASE_IN;      // Canvia l'estat del joc
+    applyPhase();          // Ajusta dificultat i obstacles
+  }
+}</code></pre>
+      </div>
+
+      <h3>Exemple comentat de JavaScript: entrada del jugador</h3>
+      <div class="codi">
+<pre><code>document.addEventListener('keydown', e =&gt; {
+  keys[e.key] = true;
+
+  // Esquerra i dreta per canviar de carril
+  if ((e.key === 'ArrowLeft' || e.key === 'a') &amp;&amp; lCooldown &lt;= 0) {
+    if (pl.lane &gt; -1) {
+      pl.lane--;
+      lCooldown = 210;
+    }
+  }
+
+  if ((e.key === 'ArrowRight' || e.key === 'd') &amp;&amp; lCooldown &lt;= 0) {
+    if (pl.lane &lt; 1) {
+      pl.lane++;
+      lCooldown = 210;
+    }
+  }
+});</code></pre>
+      </div>
+    </section>
+
+    <section>
+      <h2>4. Què fa cada part del joc?</h2>
+      <div class="graella">
+        <div class="targeta">
+          <strong>Fons i perspectiva</strong>
+          Es dibuixen el cel, els edificis i la carretera amb un efecte de profunditat per donar sensació de moviment.
+        </div>
+        <div class="targeta">
+          <strong>Obstacles</strong>
+          Apareixen cotxes, caixes, vianants i patinets. Cada element té una mida i un efecte visual diferent.
+        </div>
+        <div class="targeta">
+          <strong>Popups educatius</strong>
+          Quan el jugador accepta una distracció, surt un missatge explicatiu per reforçar l’aprenentatge.
+        </div>
+        <div class="targeta">
+          <strong>Puntuació i salut</strong>
+          El joc registra punts, distància recorreguda, encerts i errors del jugador.
+        </div>
+      </div>
+
+      <p>
+        També hi ha efectes d’àudio, canvis de carril suaus, moviments animats i una pantalla de final de partida
+        amb resum del rendiment.
+      </p>
+    </section>
+
+    <section>
+      <h2>5. Resum de l’estructura del joc</h2>
+      <ul>
+        <li><strong>Menu</strong>: pantalla d’inici amb instruccions.</li>
+        <li><strong>CD</strong>: compte enrere abans de començar.</li>
+        <li><strong>TUTO</strong>: tutorial per aprendre els controls.</li>
+        <li><strong>PLAY</strong>: fase principal amb obstacles i puntuació.</li>
+        <li><strong>PHASE_IN</strong>: pantalla d’introducció entre fases.</li>
+        <li><strong>POPUP / ERROR</strong>: missatges especials per distraccions o errors.</li>
+        <li><strong>GO</strong>: game over i resum final.</li>
+      </ul>
+
+      <p class="nota">
+        Aquesta organització fa que el joc sigui més fàcil de mantenir, entendre i ampliar amb noves idees.
+      </p>
+    </section>
+
+    <section>
+      <h2>6. Conclusió</h2>
+      <p>
+        En aquest projecte, l’HTML serveix per presentar la informació de manera clara,
+        mentre que el JavaScript és el motor que fa funcionar tota la interacció del joc.
+        Gràcies a l’estructura per fases, el jugador aprèn progressivament i entén millor
+        les normes bàsiques de seguretat vial.
+      </p>
+      <p>
+        Si es vol ampliar el projecte, es poden afegir més nivells, més obstacles, nous sons,
+        més missatges educatius o una puntuació més detallada.
+      </p>
+    </section>
+  </main>
+        <footer>
             <p>
                 &copy; Omar Ayaou - 2026 Llicència Creative Commons
             </p>
