@@ -3,6 +3,7 @@ body {
   font-family: 'Hind', sans-serif;
   background: #f4f4f4;
   color: #333;
+  line-height: 1.6;
 }
 
 .container {
@@ -11,17 +12,28 @@ body {
   margin: auto;
 }
 
-/*capçalat*/
+/*capçalera*/
 .header {
   background: white;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+a {
+  list-style: none;
+  color: black;
+  list-style-type: none;
+  background: white;
+  border: 2px orange solid;
+  border-radius: 10px;
+  text-decoration: none;
 }
 
 .navbar {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
-  padding: 15px 0;
+  padding: 10px 0;
+  gap: 30px;
 }
 
 .logo {
@@ -43,10 +55,13 @@ body {
 .menu a {
   text-decoration: none;
   color: #333;
-  font-weight: 500;
+  font-weight: 600;
 }
 
-/* hero de pàg.*/
+.menu a:hover {
+  color: #ffae00;
+}
+
 .hero {
   background: linear-gradient(135deg, #ffd000, #ffae00);
   text-align: center;
@@ -67,10 +82,14 @@ body {
   display: inline-block;
   margin-top: 20px;
   background: black;
-  color: orange;
+  color: white;
   padding: 12px 25px;
   text-decoration: none;
   border-radius: 5px;
+}
+
+.btn-primary:hover {
+  background: #333;
 }
 
 /*info*/
@@ -90,10 +109,6 @@ body {
   box-shadow: 0 3px 10px rgba(0,0,0,0.1);
 }
 
-.card h3 {
-  margin-top: 0;
-}
-
 .btn-secondary {
   display: inline-block;
   margin-top: 10px;
@@ -102,7 +117,70 @@ body {
   text-decoration: none;
 }
 
-/*Peu de pàgina*/
+.btn-secondary:hover {
+  text-decoration: underline;
+}
+
+/*procés explicació codi*/
+main {
+  padding: 20px;
+}
+
+section {
+  background: white;
+  padding: 25px;
+  margin: 20px auto;
+  border-radius: 10px;
+  max-width: 1100px;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+}
+
+h1, h2, h3 {
+  margin-top: 0;
+}
+
+.graella {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 15px;
+  margin-top: 15px;
+}
+
+.targeta {
+  background: #fafafa;
+  padding: 15px;
+  border-radius: 8px;
+  border-left: 5px solid #ffae00;
+}
+
+/* lletra codi etiqueta*/
+.codi {
+  background: #222;
+  color: #eee;
+  padding: 15px;
+  border-radius: 8px;
+  overflow-x: auto;
+  margin-top: 15px;
+}
+
+pre {
+  margin: 0;
+}
+
+code {
+  font-family: monospace;
+}
+
+/* Anotacions*/
+.nota {
+  background: #fff3cd;
+  border-left: 5px solid #ffc107;
+  padding: 10px;
+  margin-top: 15px;
+  border-radius: 5px;
+}
+
+/*Peu de pàg. */
 .footer {
   background: #222;
   color: white;
@@ -115,8 +193,9 @@ body {
   margin: 10px;
 }
 
-/*Estil per mòbil*/
+/* Estil per a mòbil*/
 @media (max-width: 768px) {
+
   .navbar {
     flex-direction: column;
     gap: 10px;
@@ -129,5 +208,9 @@ body {
 
   .hero h2 {
     font-size: 2rem;
+  }
+
+  section {
+    padding: 20px;
   }
 }
