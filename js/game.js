@@ -1004,7 +1004,7 @@ function drawMenu() {
     ['↑      Accelera',                     '#aaffaa'],
     ['↓      Frena',                        '#aaffaa'],
     ['C      Cancel·la distracció',         P.gn    ],
-    ['V      Accepta distracció (perill!)', '#ff8888'],
+    ['V      Accepta distracció (Perill!)', '#ff8888'],
     ['',                                    ''],
     ['🚗  Esquiva els cotxes!',             '#ffaa44'],
     ['🚦  Semàfor vermell = FRENA!',        P.yw    ],
@@ -1068,7 +1068,7 @@ function drawGameOver() {
   // Missatge final adaptat al rendiment
   let edu;
   if(phase>=4&&S.da<=1)    edu=['Molt bé!','Conductor model! 🏆'];
-  else if(S.da>=3)         edu=['Les distraccions son perilloses!','Prem sempre C quan surti el mòbil!'];
+  else if(S.da>=3)         edu=['Les distraccions són perilloses!','Prem sempre C quan surti el mòbil!'];
   else if(S.col>=3)        edu=['Mira al davant!','Anticipa els obstacles des de lluny.'];
   else if(S.li>=2)         edu=['Respecta els semàfors!','Frena (↓) quan vegis vermell o groc.'];
   else                     edu=['Practica i milloraràs!','La seguretat vial salva vides.'];
