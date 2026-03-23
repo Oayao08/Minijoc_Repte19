@@ -477,7 +477,7 @@ const ERR_DEF = {
 const POPS = [
   {
     icon:'📱', title:'NOTIFICACIÓ!',
-    lines:["L'Instagram t'ha", "etiquetat en una foto.", "Vols mirar-ho?"],
+    lines:["Algú t'ha", "etiquetat en una foto.", "Vols mirar-ho?"],
     cancel:'Ara no', accept:'Miro el mòbil',
     bon:'✓ El mòbil pot esperar sempre!',
     pen:'✗ Mai el mòbil mentre circules!',
