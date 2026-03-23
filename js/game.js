@@ -994,7 +994,7 @@ function drawMenu() {
   ctx.shadowColor=P.or;ctx.shadowBlur=22*g;
   pr(W/2-204,42,408,100,P.or);pr(W/2-200,46,400,92,'#000016');ctx.shadowBlur=0;
   ctx.font="22px 'Press Start 2P'";ctx.fillStyle=P.or;ctx.textAlign='center';ctx.textBaseline='middle';
-  ctx.shadowColor=P.or;ctx.shadowBlur=18*g;ctx.fillText('Ves amb compte!',W/2,82);ctx.shadowBlur=0;
+  ctx.shadowColor=P.or;ctx.shadowBlur=18*g;ctx.fillText('Vés amb compte!',W/2,82);ctx.shadowBlur=0;
   ctx.font="7px 'Press Start 2P'";ctx.fillStyle=P.yw;ctx.fillText('Juga amb Seguretat al Carrer!',W/2,112);
   // Panell de controls
   pr(W/2-184,155,368,278,'rgba(0,0,42,.95)');pr(W/2-184,155,368,4,P.or);
