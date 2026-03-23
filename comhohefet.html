@@ -24,76 +24,79 @@
         </ul>
       </nav>
     </header>
-
+    
       <h1>Procés del projecte</h1>
-            <div class="etiquetes">
-                <span class="etiqueta">HTML estructurat</span>
-                <span class="etiqueta">Canvas</span>
-                <span class="etiqueta">JavaScript</span>
-                <span class="etiqueta">Fases del joc</span>
-                <span class="etiqueta">Educació vial</span>
-            </div>
+      <div class="etiquetes">
+        <span class="etiqueta">HTML estructurat</span>
+        <span class="etiqueta">Canvas</span>
+        <span class="etiqueta">JavaScript</span>
+        <span class="etiqueta">Fases del joc</span>
+        <span class="etiqueta">Educació vial</span>
+      </div>
+      
+      <div class="imatges">
+        <img src="img/proces/Captura de pantalla 2026-03-23 084011.png" alt="">
+      </div>
+      <section>
+        <h2>1. Funcionament general del joc</h2>
+        <p>
+            El joc està pensat com una experiència interactiva en 2D dins d’un <span class="marca">canvas</span>.
+            El jugador controla un patinet o vehicle similar i ha d’avançar per una carretera amb perspectiva,
+            esquivant obstacles i respectant diferents normes de circulació.
+        </p>
 
-        <section>
-          <h2>1. Funcionament general del joc</h2>
+        <div class="graella">
+            <div class="targeta">
+              <strong>Menú inicial</strong>
+              El joc comença amb una pantalla principal on es mostren les instruccions bàsiques i el botó per començar.
+            </div>
+            <div class="targeta">
+              <strong>Compte enrere</strong>
+              Abans de començar, apareix un 3, 2, 1 i un missatge d’inici perquè el jugador es prepari.
+            </div>
+              <div class="targeta">
+              <strong>Tutorial</strong>
+              A la primera fase es practiquen els controls: accelerar, frenar i canviar de carril.
+            </div>
+            <div class="targeta">
+              <strong>Fases progressives</strong>
+              El joc afegeix dificultat a poc a poc: cotxes, semàfors, vianants, passos de zebra i distraccions digitals.
+            </div>
+        </div>
+        <p class="nota">
+            L’objectiu no és només puntuar, sinó aprendre a conduir amb seguretat i prendre decisions correctes en cada situació.
+        </p>
+      </section>
+
+      <section>
+          <h2>2. Estructura de l’HTML utilitzada</h2>
           <p>
-              El joc està pensat com una experiència interactiva en 2D dins d’un <span class="marca">canvas</span>.
-              El jugador controla un patinet o vehicle similar i ha d’avançar per una carretera amb perspectiva,
-              esquivant obstacles i respectant diferents normes de circulació.
+              L’HTML està pensat per ser simple i net. La idea principal és tenir una pàgina amb un títol,
+              diverses seccions explicatives i un espai per mostrar el codi de manera ordenada.
           </p>
 
-          <div class="graella">
-              <div class="targeta">
-                <strong>Menú inicial</strong>
-                El joc comença amb una pantalla principal on es mostren les instruccions bàsiques i el botó per començar.
-              </div>
-              <div class="targeta">
-                <strong>Compte enrere</strong>
-                Abans de començar, apareix un 3, 2, 1 i un missatge d’inici perquè el jugador es prepari.
-              </div>
-                <div class="targeta">
-                <strong>Tutorial</strong>
-                A la primera fase es practiquen els controls: accelerar, frenar i canviar de carril.
-              </div>
-              <div class="targeta">
-                <strong>Fases progressives</strong>
-                El joc afegeix dificultat a poc a poc: cotxes, semàfors, vianants, passos de zebra i distraccions digitals.
-              </div>
+          <h3>Exemple bàsic d’HTML comentat</h3>
+          <div class="codi">
+            <pre><code>&lt;main class="contenidor"&gt;
+              &lt;header&gt;
+                  &lt;h1&gt;Com ho hem fet el joc&lt;/h1&gt;
+                  &lt;p&gt;Explicació clara del projecte.&lt;/p&gt;
+              &lt;/header&gt;
+
+              &lt;section&gt;
+                  &lt;h2&gt;Funcionament general&lt;/h2&gt;
+                  &lt;p&gt;Aquí es descriu com va el joc.&lt;/p&gt;
+              &lt;/section&gt;
+              &lt;/main&gt;
+            </code></pre>
+
           </div>
-          <p class="nota">
-              L’objectiu no és només puntuar, sinó aprendre a conduir amb seguretat i prendre decisions correctes en cada situació.
+          
+          <p>
+            Aquesta estructura ajuda a separar el contingut en blocs fàcils de llegir i de revisar.
+            A més, el títol principal i les seccions permeten entendre ràpidament de què tracta cada part.
           </p>
-        </section>
-
-        <section>
-            <h2>2. Estructura de l’HTML utilitzada</h2>
-            <p>
-                L’HTML està pensat per ser simple i net. La idea principal és tenir una pàgina amb un títol,
-                diverses seccions explicatives i un espai per mostrar el codi de manera ordenada.
-            </p>
-
-            <h3>Exemple bàsic d’HTML comentat</h3>
-            <div class="codi">
-              <pre><code>&lt;main class="contenidor"&gt;
-                &lt;header&gt;
-                    &lt;h1&gt;Com ho hem fet el joc&lt;/h1&gt;
-                    &lt;p&gt;Explicació clara del projecte.&lt;/p&gt;
-                &lt;/header&gt;
-
-                &lt;section&gt;
-                    &lt;h2&gt;Funcionament general&lt;/h2&gt;
-                    &lt;p&gt;Aquí es descriu com va el joc.&lt;/p&gt;
-                &lt;/section&gt;
-                &lt;/main&gt;
-              </code></pre>
-            </div>
-
-            <p>
-                Aquesta estructura ajuda a separar el contingut en blocs fàcils de llegir i de revisar.
-                A més, el títol principal i les seccions permeten entendre ràpidament de què tracta cada part.
-            </p>
-        </section>
-
+      </section>
         <section>
           <h2>3. Funcionament del codi JavaScript</h2>
           <p>

@@ -153,6 +153,17 @@ h1, h2, h3 {
   border-left: 5px solid #ffae00;
 }
 
+.imatges img {
+  width: 900px;
+  height: 500px;
+}
+
+.imatges {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 /* lletra codi etiqueta*/
 .codi {
   background: #222;
