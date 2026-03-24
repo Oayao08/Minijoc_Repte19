@@ -207,21 +207,58 @@ code {
 /* Estil per a mòbil*/
 @media (max-width: 768px) {
 
+  /* Navbar vertical y més espai */
   .navbar {
     flex-direction: column;
-    gap: 10px;
+    gap: 12px;
   }
 
   .menu {
     flex-direction: column;
     align-items: center;
+    gap: 12px;
   }
 
+  .menu a {
+    padding: 10px 15px;
+    font-size: 1rem;
+  }
+
+  /* Hero adaptatiu */
   .hero h2 {
-    font-size: 2rem;
+    font-size: 1.8rem;
   }
 
+  .hero p {
+    font-size: 0.95rem;
+    max-width: 90%;
+  }
+
+  /* Seccions y cards */
   section {
-    padding: 20px;
+    padding: 15px;
+    margin: 15px 10px;
+  }
+
+  .card, .targeta {
+    min-width: 100%;
+    flex: 1 1 100%;
+    padding: 15px;
+  }
+
+  /* Imatges*/
+  .imatges img {
+    width: 100%;
+    height: auto;
+  }
+
+  /* Footer y logotips */
+  .footer-logos img {
+    height: 30px;
+    margin: 5px;
+  }
+
+  .footer {
+    padding: 15px 10px;
   }
 }

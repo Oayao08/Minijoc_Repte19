@@ -105,12 +105,11 @@ canvas {
     gap: 8px;
   }
 
-  /* Contenedor principal adaptativo */
   #wrap {
     width: 95vw;
     max-width: 420px;
     height: auto;
-    aspect-ratio: 5 / 7; /* mantiene proporción */
+    aspect-ratio: 5 / 7;
     border-width: 2px;
   }
 
@@ -119,7 +118,6 @@ canvas {
     height: 100%;
   }
 
-  /* Header más compacto en vez de ocultarlo */
   .gh {
     padding: 6px 10px;
     gap: 8px;
@@ -141,7 +139,6 @@ canvas {
     height: 20px;
   }
 
-  /* Texto más legible */
   #hint {
     font-size: 9px;
     line-height: 1.6;
